@@ -6,11 +6,7 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
-function Button({
-  text,
-  type = "button",
-  onClick,
-}: ButtonProps) {
+function Button({ text,type = "button",onClick,}: ButtonProps) {
   return (
     <button
       className="primary-button"
