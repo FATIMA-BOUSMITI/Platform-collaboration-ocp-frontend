@@ -1,0 +1,22 @@
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(116, 116, 116, 0.35);
+
+    backdrop-filter: blur(2px);
+
+    z-index: 1000;
+
+    animation: fade .25s;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

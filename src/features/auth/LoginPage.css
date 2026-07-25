@@ -8,23 +8,41 @@
 
     align-items:center;
 
-    background:linear-gradient(135deg,#eef5f1,#f8faf9);
+    padding:30px;
+
+    background:linear-gradient(
+        135deg,
+        #eef7f2,
+        #ffffff
+    );
 
 }
+
 
 .login-card{
 
-    width:480px;
+    width:470px;
 
-    background:white;
+    max-width:100%;
 
-    border-radius:24px;
+    background:var(--white);
+
+    border-radius:22px;
+
+    overflow:hidden;
 
     box-shadow:var(--shadow);
 
-    padding:50px;
+}
+
+.top-bar{
+
+    height:4px;
+
+    background:var(--primary);
 
 }
+
 
 .logo-container{
 
@@ -32,7 +50,7 @@
 
     justify-content:center;
 
-    margin-bottom:25px;
+    margin-top:28px;
 
 }
 
@@ -42,23 +60,35 @@
 
 }
 
-.login-card h3{
+.login-title{
+
+    margin-top:20px;
 
     text-align:center;
 
-    margin-bottom:10px;
-
-    font-size:20px;
+    font-size:22px;
+    font-weight:250;
 
 }
 
-.subtitle{
+.login-subtitle{
 
     text-align:center;
+
+    margin-top:10px;
 
     color:var(--text-light);
 
     margin-bottom:35px;
+
+    font-size:14.5px;
+
+}
+
+
+.login-form{
+
+    padding:0 40px 40px;
 
 }
 
@@ -70,9 +100,7 @@
 
     align-items:center;
 
-    margin-bottom:25px;
-
-    font-size:14px;
+    margin-bottom:20px;
 
 }
 
@@ -80,16 +108,34 @@
 
     color:var(--primary);
 
-    font-weight:600;
+    font-weight:500;
+
+    font-size:14px;
 
 }
+.login-options a:hover{
 
-.remember{
+    text-decoration:underline;
+
+}
+.remember-me{
 
     display:flex;
 
-    gap:8px;
-
     align-items:center;
 
+    gap:8px;
+
+    font-size:15px;
+
+    
+
+}
+
+.bottom-bar{
+    height:35px;
+    background:#f8f8f8;
+    text-align:center;
+    line-height:35px;
+    font-size:10px;
 }
