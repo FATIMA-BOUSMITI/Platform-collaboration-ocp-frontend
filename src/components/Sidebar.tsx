@@ -3,16 +3,22 @@ import "./styles/Sidebar.css";
 import {
   MdOutlineDashboard,
   MdBusiness,
-  MdOutlineShield,
   MdOutlineLogout,
   MdOutlineClose
 } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 import { RiTeamFill } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
+import { FiShield } from "react-icons/fi";
 
 import SidebarItem from "./SidebarItem";
 import SidebarSection from "./SidebarSection";
+import { FiClock } from "react-icons/fi";
+import { FiActivity } from "react-icons/fi";
+import { FiAlertTriangle } from "react-icons/fi";
+import { FiSettings } from "react-icons/fi";
+import { FiBell } from "react-icons/fi";
+import { FiDatabase } from "react-icons/fi";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -62,7 +68,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         label="Liste des utilisateurs"
       />
       <SidebarItem
-        to="/users"
+        to="/profile"
         icon={<FaRegUser />}
         label="Profile"
       />
@@ -76,7 +82,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         label="Départements"
       />
       <SidebarItem
-        to="/users"
+        to="/teams"
         icon={<RiTeamFill/>}
         label="Équipes"
       />
@@ -85,21 +91,55 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <SidebarItem
         to="/roles"
-        icon={<MdOutlineShield />}
+        icon={<FiShield />}
         label="Rôles"
       />
       <SidebarItem
-        to="/roles"
-        icon={<MdOutlineShield />}
+        to="/permissions"
+        icon={<FiShield />}
         label="Permissions"
       />
+     
+
       <SidebarItem
-        to="/roles"
-        icon={<MdOutlineShield />}
+        to="/sessions"
+        icon={<FiShield />}
         label="Sessions"
       />
       <SidebarSection title=" MONITORING" />
+      <SidebarItem
+        to="/logs"
+        icon={<FiClock />}
+        label="Logs"
+      />
+      <SidebarItem
+        to="/metrics"
+        icon={<FiActivity />}
+        label="Metrics"
+      />
+      <SidebarItem
+        to="/alerts"
+        icon={<FiAlertTriangle />}
+        label="Alertes"
+      />
+
       <SidebarSection title=" SETTINGS" />
+      <SidebarItem
+        to="/settings"
+        icon={<FiSettings />}
+        label="General"
+      />
+      <SidebarItem
+        to="/notifications"
+        icon={<FiBell />}
+        label="Notifications"
+      />
+       <SidebarItem
+        to="/backup"
+        icon={<FiDatabase />}
+        label="Backup"
+      />
+
 
      
 
