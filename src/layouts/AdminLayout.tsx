@@ -33,10 +33,16 @@ function AdminLayout() {
     />
 
       <main
-        style={{
-          marginTop: "72px",
-          padding: "30px",
-        }}
+        
+          style={{
+        marginTop: "72px",
+        padding: "30px",
+        width: "100%",
+        minHeight: "100vh",
+        background: "#f8fafb",
+        boxSizing: "border-box",
+    }}
+        
       >
         <Outlet />
       </main>

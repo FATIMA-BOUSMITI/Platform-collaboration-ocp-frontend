@@ -19,6 +19,7 @@ import { FiAlertTriangle } from "react-icons/fi";
 import { FiSettings } from "react-icons/fi";
 import { FiBell } from "react-icons/fi";
 import { FiDatabase } from "react-icons/fi";
+import { FiShieldOff } from "react-icons/fi";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -96,7 +97,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
       />
       <SidebarItem
         to="/permissions"
-        icon={<FiShield />}
+        icon={<FiShieldOff />}
         label="Permissions"
       />
      
