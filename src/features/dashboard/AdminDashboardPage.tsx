@@ -4,8 +4,30 @@ import StatsGrid from "./components/StatsGrid";
 import { FiUsers } from "react-icons/fi";
 import { MdOutlineShield } from "react-icons/md";
 import { LuActivity, LuClock3 } from "react-icons/lu";
+import { getUsersStats } from "../../api/userApi";
+import { useState } from "react";
+import { useEffect } from "react";
+import type { UserStats } from "./dashboard.types";
+import QuickActions from "./components/QuickActions";
+import RecentActivity from "./components/RecentActivity";
+import "./AdminDashboard.css";
+ function AdminDashboardPage() {
 
-function AdminDashboardPage() {
+    const [stat,setStat]=useState<UserStats>('' as unknown as UserStats);
+
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                const data = await getUsersStats();
+                setStat(data);
+            }
+
+             catch(error){
+                console.error("Erreur lors de la récupération des statistiques :", error);
+             }
+            }
+            fetchStats();
+    },[]);
 
     const stats = [
 
@@ -13,7 +35,7 @@ function AdminDashboardPage() {
 
             title:"Utilisateurs Actifs",
 
-            value:"2,405",
+            value:stat?.activeUsers,
 
             trend:"↑ +12%",
 
@@ -31,7 +53,7 @@ function AdminDashboardPage() {
 
             title:"Tentatives Échouées (24h)",
 
-            value:"142",
+            value:  stat?.totalFailedAttempts ,
 
             trend:"↗ -5%",
 
@@ -93,6 +115,11 @@ function AdminDashboardPage() {
             />
 
             <StatsGrid stats={stats}/>
+
+            <div className="dashboard-bottom">
+               <RecentActivity to=""/>
+               <QuickActions />
+            </div>
 
         </div>
 

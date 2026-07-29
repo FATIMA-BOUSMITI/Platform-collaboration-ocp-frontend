@@ -1,6 +1,6 @@
 export interface DashboardStat {
   title: string;
-  value: string;
+  value: string | number;
   trend: string;
   trendColor: string;
   description: string;
@@ -20,4 +20,17 @@ export interface QuickAction {
   id: number;
   title: string;
   icon: React.ReactNode;
+}
+export interface UserStats {
+
+    totalUsers: number;
+
+    activeUsers: number;
+
+    lockedAccounts: number;
+
+    totalFailedAttempts: number;
+
+    usersWithFailedAttempts: number;
+
 }

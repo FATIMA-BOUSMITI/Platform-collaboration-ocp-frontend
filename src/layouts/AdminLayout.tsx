@@ -1,7 +1,5 @@
 import { useState } from "react";
-// If Header's exported type isn't recognized as a valid React component
-// cast it to any to allow using it in JSX.
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import "./AdminLayout.css" ;
 
 import Header from "../components/Header";
@@ -14,6 +12,14 @@ function AdminLayout() {
   const ToggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   }
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+
+    navigate("/");
+  };
 
 
   return (
@@ -30,6 +36,7 @@ function AdminLayout() {
     <Sidebar
        isOpen={isSidebarOpen}
        onClose={ToggleSidebar}
+       onLogout={handleLogout}
     />
 
       <main
