@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../features/auth/LoginPage";
 import AdminDashboardPage from "../features/dashboard/AdminDashboardPage";
 import AdminLayout from "../layouts/AdminLayout";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppRouter() {
   return (
@@ -12,13 +13,16 @@ function AppRouter() {
         {/* Routes publiques */}
         <Route path="/" element={<LoginPage />} />
 
-        {/* Routes protégées (pour l'instant sans authentification) */}
-        <Route element={<AdminLayout />}>
+        {/* Routes protégées */}
+        <Route element={ <ProtectedRoute>
+              <AdminLayout />
+         </ProtectedRoute>}>
 
           <Route
             path="/dashboard"
             element={<AdminDashboardPage />}
           />
+          
 
         </Route>
 

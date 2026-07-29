@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../api/authApi";
+import { useAuthStore } from "./AuthStore";
 
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -10,11 +13,41 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const auth = useAuthStore();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle login logic here
-  };
+  const handleLogin = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
+
+  e.preventDefault();
+
+  try {
+
+    const response = await login({
+
+      email,
+
+      password,
+
+    });
+
+    auth.login(
+      response.accessToken,
+      response.refreshToken
+    );
+
+    navigate("/dashboard");
+
+  } catch (error) {
+
+    alert("Email ou mot de passe incorrect.");
+
+    console.error(error);
+
+  }
+
+};
 
   return (
     <div className="login-page">
@@ -37,7 +70,7 @@ function LoginPage() {
         <p className="login-subtitle">
           Connectez-vous à votre espace sécurisé OCP Group
         </p>
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleLogin}>
         <Input
           label="Identifiant / Email"
           placeholder="prenom.nom@ocpgroup.ma"

@@ -1,0 +1,52 @@
+.recent-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    border:1px solid #e6ece8;
+
+    box-shadow:0 4px 18px rgba(0,0,0,.05);
+
+}
+
+.recent-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 30px;
+
+    border-bottom:1px solid #edf2ef;
+
+}
+
+.recent-header h2{
+
+    font-size:18px;
+
+    font-weight:100;
+
+}
+
+.recent-header button{
+
+    border:none;
+
+    background:none;
+
+    color:#0d7a46;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+}
+Link{
+    color:#0d7a46
+}

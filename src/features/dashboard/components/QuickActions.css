@@ -1,0 +1,41 @@
+.quick-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    border:1px solid #e6ece8;
+
+    overflow:hidden;
+
+    box-shadow:0 4px 18px rgba(0,0,0,.05);
+
+}
+
+.quick-header{
+
+    padding:20px 30px;
+
+    border-bottom:1px solid #edf2ef;
+
+}
+
+.quick-header h2{
+
+    font-size:18px;
+
+    font-weight:100;
+
+}
+
+.quick-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+    padding:22px;
+
+}

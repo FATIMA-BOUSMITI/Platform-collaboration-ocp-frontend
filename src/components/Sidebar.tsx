@@ -24,11 +24,12 @@ import { FiShieldOff } from "react-icons/fi";
 interface SidebarProps {
   isOpen: boolean;
   onClose?: () => void;
+  onLogout?: () => void;
 }
 
 
 
-function Sidebar({ isOpen, onClose }: SidebarProps) {
+function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
   return (
     <aside className={`sidebar ${isOpen ? "open" : ""}`}>
 
@@ -149,12 +150,12 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
       </div>
 
       {/* Bas */}
-       <div className="sidebar-bottom">
-    <button className="logout-button">
-      <MdOutlineLogout />
-      Déconnexion
-    </button>
-  </div>
+      <div className="sidebar-bottom">
+        <button className="logout-button" onClick={onLogout}>
+          <MdOutlineLogout />
+          Déconnexion
+        </button>
+      </div>
 
 
     </aside>
