@@ -60,6 +60,7 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/dashboard"
         icon={<MdOutlineDashboard />}
         label="Dashboard"
+        onClick={onClose}
       />
 
       <SidebarSection title="USERS" />
@@ -68,11 +69,13 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/users"
         icon={<FiUsers/>}
         label="Liste des utilisateurs"
+        onClick={onClose}
       />
       <SidebarItem
         to="/profile"
         icon={<FaRegUser />}
         label="Profile"
+        onClick={onClose}
       />
       
 
@@ -82,11 +85,13 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/departments"
         icon={<MdBusiness />}
         label="Départements"
+        onClick={onClose}
       />
       <SidebarItem
         to="/teams"
         icon={<RiTeamFill/>}
         label="Équipes"
+        onClick={onClose}
       />
 
       <SidebarSection title="SECURITY" />
@@ -95,11 +100,13 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/roles"
         icon={<FiShield />}
         label="Rôles"
+        onClick={onClose}
       />
       <SidebarItem
         to="/permissions"
         icon={<FiShieldOff />}
         label="Permissions"
+        onClick={onClose}
       />
      
 
@@ -107,22 +114,26 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/sessions"
         icon={<FiShield />}
         label="Sessions"
+        onClick={onClose}
       />
       <SidebarSection title=" MONITORING" />
       <SidebarItem
         to="/logs"
         icon={<FiClock />}
         label="Logs"
+        onClick={onClose}
       />
       <SidebarItem
         to="/metrics"
         icon={<FiActivity />}
         label="Metrics"
+        onClick={onClose}
       />
       <SidebarItem
         to="/alerts"
         icon={<FiAlertTriangle />}
         label="Alertes"
+        onClick={onClose}
       />
 
       <SidebarSection title=" SETTINGS" />
@@ -130,16 +141,19 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         to="/settings"
         icon={<FiSettings />}
         label="General"
+        onClick={onClose}
       />
       <SidebarItem
         to="/notifications"
         icon={<FiBell />}
         label="Notifications"
+        onClick={onClose}
       />
        <SidebarItem
         to="/backup"
         icon={<FiDatabase />}
         label="Backup"
+        onClick={onClose}
       />
 
 

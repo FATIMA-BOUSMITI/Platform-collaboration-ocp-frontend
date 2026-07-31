@@ -1,0 +1,117 @@
+.user-cell{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+}
+
+.avatar{
+
+    width:30px ;
+
+    height:30px ;
+
+    border-radius:50%;
+
+    background:#163A2D;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:200px;
+
+    font-size:14px
+
+}
+
+.user-cell h4{
+
+    margin:0;
+
+    font-size:14px
+
+}
+
+.user-cell p{
+
+    margin-top:4px;
+
+    color:#667085;
+
+    font-size: 13px
+
+}
+
+.role-badge{
+
+    background:#F0F8F3;
+
+    color:#126B38;
+
+    padding:8px 18px;
+
+    border-radius:40px;
+
+    font-size:12px ;
+
+}
+
+.status{
+
+    padding:8px 18px;
+
+    border-radius:40px;
+
+}
+
+.active{
+
+    background:#E8F8ED;
+
+    color:#15803D;
+    font-size: 14px
+
+}
+
+.inactive{
+
+    background:#FDECEC;
+
+    color:#DC2626;
+    font-size: 14px
+
+}
+
+.edit-role-button{
+
+    border:1px solid #126B38;
+
+    background:white;
+
+    color:#126B38;
+
+    padding:12px 22px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.edit-role-button:hover{
+
+    background:#126B38;
+
+    color:white;
+
+}

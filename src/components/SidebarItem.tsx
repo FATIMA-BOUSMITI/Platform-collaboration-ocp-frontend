@@ -4,9 +4,10 @@ interface SidebarItemProps {
   to: string;
   icon: React.ReactNode;
   label: string;
+  onClick?:()=>void
 }
 
-function SidebarItem({to,icon,label,}: SidebarItemProps) {
+function SidebarItem({to,icon,label,onClick}: SidebarItemProps) {
   return (
     <NavLink
       to={to}
@@ -15,6 +16,7 @@ function SidebarItem({to,icon,label,}: SidebarItemProps) {
           ? "sidebar-item active"
           : "sidebar-item"
       }
+      onClick={onClick}
     >
       <span className="sidebar-icon">
         {icon}
