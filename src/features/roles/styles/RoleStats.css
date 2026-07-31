@@ -1,0 +1,85 @@
+.role-stats{
+
+    display:flex;
+
+    gap:18px;
+
+}
+
+.role-stat-card{
+
+    width:90px ;
+
+    height:65px ;
+
+    border-radius:18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border:1px solid;
+
+}
+
+.role-stat-card h2{
+
+    margin:0;
+
+    font-size:20px ;
+
+    font-weight:400
+
+}
+
+.role-stat-card span{
+
+    margin-top:7px ;
+
+    font-size:12px
+
+}
+
+.admin{
+
+    background:#f7f7f7;
+
+    border-color:#d8d8d8;
+
+    color:#263238;
+
+}
+
+.director{
+
+    background:#fff8ea;
+
+    border-color:#f0cf84;
+
+    color:#a67617;
+
+}
+
+.manager{
+
+    background:#edf9f4;
+
+    border-color:#b7e0ca;
+
+    color:#18794e;
+
+}
+
+.employee{
+
+    background:#eef5ff;
+
+    border-color:#bfd6ff;
+
+    color:#3f6fb4;
+
+}

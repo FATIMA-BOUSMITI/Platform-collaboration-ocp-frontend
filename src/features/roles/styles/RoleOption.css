@@ -1,0 +1,47 @@
+.role-option{
+
+    border:1px solid #E3E8E4;
+
+    border-radius:12px ;
+
+    padding:12px 20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.role-option:hover{
+
+    border-color:#15803D;
+
+}
+
+.role-option.selected{
+
+    background:#F2F8F3;
+
+    border-color:#15803D;
+
+}
+
+.role-option span{
+
+    font-size:13px
+
+}
+
+.role-option svg{
+
+    font-size:16px ;
+
+    color:#15803D;
+
+}
