@@ -15,7 +15,7 @@ function Header({ onToggleSidebar }: HeaderProps) {
           onClick={onToggleSidebar}
         >
           <FiMenu />
-        </button>
+        </button>""
 
         <img
           src="/ocp-logo.png"

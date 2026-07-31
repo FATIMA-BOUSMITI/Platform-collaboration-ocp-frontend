@@ -139,3 +139,50 @@
     line-height:35px;
     font-size:10px;
 }
+.error-box {
+
+    width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    background-color: #fff1f1;
+
+    border: 1px solid #ffb8b8;
+
+    color: #d93025;
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+
+    line-height: 20px;
+}
+
+
+.error-icon {
+
+    width: 18px;
+    height: 18px;
+
+    flex-shrink: 0;
+
+    border: 1px solid #d93025;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: bold;
+
+}

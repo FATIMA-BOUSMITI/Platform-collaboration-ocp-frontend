@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/authApi";
+
+import { login } from "../../api/authApi.ts";
 import { useAuthStore } from "./AuthStore";
 
 import Input from "../../components/Input";
@@ -10,49 +11,54 @@ import Button from "../../components/Button";
 import "./LoginPage.css";
 
 function LoginPage() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-  const auth = useAuthStore();
 
-  const handleLogin = async (
-  e: React.FormEvent<HTMLFormElement>
-) => {
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  e.preventDefault();
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
 
-  try {
+    setSubmitted(true);
 
-    const response = await login({
+    if (!email || !password) {
+      setError("Veuillez renseigner tous les champs.");
+      return;
+    }
 
-      email,
+    try {
+      setError("");
 
-      password,
+      const response = await login({
+        email,
+        password,
+      });
 
-    });
+      if (response.accessToken) {
+        localStorage.setItem(
+          "accessToken",
+          response.accessToken
+        );
 
-    auth.login(
-      response.accessToken,
-      response.refreshToken
-    );
-
-    navigate("/dashboard");
-
-  } catch (error) {
-
-    alert("Email ou mot de passe incorrect.");
-
-    console.error(error);
-
-  }
-
-};
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+          "Une erreur est survenue. Veuillez réessayer."
+      );
+    }
+  };
 
   return (
     <div className="login-page">
       <div className="login-card">
-
         <div className="top-bar"></div>
 
         <div className="logo-container">
@@ -70,46 +76,73 @@ function LoginPage() {
         <p className="login-subtitle">
           Connectez-vous à votre espace sécurisé OCP Group
         </p>
-        <form className="login-form" onSubmit={handleLogin}>
-        <Input
-          label="Identifiant / Email"
-          placeholder="prenom.nom@ocpgroup.ma"
-          value={email}
-          type="email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
 
-        <Input
-          label="Mot de passe"
-          type={showPassword ? "text" : "password"}
-          placeholder="********"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          rightIcon={
-            showPassword ? (
-              <FiEyeOff onClick={() => setShowPassword(false)} />
-            ) : (
-              <FiEye onClick={() => setShowPassword(true)} />
-            )
-          }
-        />
+        {error && (
+          <div className="error-box">
+            <span className="error-icon">!</span>
+            <span>{error}</span>
+          </div>
+        )}
 
-        <div className="login-options">
+        <form
+          className="login-form"
+          onSubmit={handleSubmit}
+        >
+          <Input
+            label="Identifiant / Email"
+            type="email"
+            placeholder="prenom.nom@ocpgroup.ma"
+            value={email}
+            error={submitted && !email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
+          />
 
-          <label className="remember-me">
-            <input type="checkbox" />
-            Se souvenir de moi
-          </label>
+          <Input
+            label="Mot de passe"
+            type={showPassword ? "text" : "password"}
+            placeholder="********"
+            value={password}
+            error={submitted && !password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+            }}
+            rightIcon={
+              showPassword ? (
+                <FiEyeOff
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <FiEye
+                  onClick={() => setShowPassword(true)}
+                />
+              )
+            }
+          />
 
-          <a href="#">
-            Mot de passe oublié ?
-          </a>
+          <div className="login-options">
+            <label className="remember-me">
+              <input type="checkbox" />
+              Se souvenir de moi
+            </label>
 
-        </div>
+            <a href="/forgot-password">
+              Mot de passe oublié ?
+            </a>
+          </div>
 
-        <Button text="Se connecter" type="submit" />
+          <Button
+            text="Se connecter"
+            type="submit"
+          />
         </form>
-         <div className="bottom-bar">OCP Group · Système d'Information Interne</div>
+
+        <div className="bottom-bar">
+          OCP Group · Système d'Information Interne
+        </div>
       </div>
     </div>
   );
