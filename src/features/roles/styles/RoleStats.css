@@ -44,7 +44,7 @@
 
 }
 
-.admin{
+.ADMIN{
 
     background:#f7f7f7;
 
@@ -54,7 +54,7 @@
 
 }
 
-.director{
+ .EMPLOYEE{
 
     background:#fff8ea;
 
@@ -64,7 +64,7 @@
 
 }
 
-.manager{
+.MANAGER{
 
     background:#edf9f4;
 
@@ -74,7 +74,7 @@
 
 }
 
-.employee{
+.INTERN{
 
     background:#eef5ff;
 

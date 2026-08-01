@@ -37,11 +37,11 @@ import "./AdminDashboard.css";
 
             value:stat?.activeUsers,
 
-            trend:"↑ +12%",
+            
 
             trendColor:"#16a34a",
 
-            description:"vs le mois dernier",
+            description:"",
 
             icon:<FiUsers />,
 
@@ -55,11 +55,11 @@ import "./AdminDashboard.css";
 
             value:  stat?.totalFailedAttempts ,
 
-            trend:"↗ -5%",
+            
 
             trendColor:"#16a34a",
 
-            description:"vs le mois dernier",
+            description:"",
 
             icon:<MdOutlineShield />,
 
@@ -69,15 +69,15 @@ import "./AdminDashboard.css";
 
         {
 
-            title:"Temps de réponse",
+            title:"locked accounts",
 
-            value:"45ms",
+            value:stat?.lockedAccounts,
 
-            trend:"↘ +2ms",
+            
 
             trendColor:"#dc2626",
 
-            description:"vs le mois dernier",
+            description:"",
 
             icon:<LuActivity />,
 
@@ -89,13 +89,13 @@ import "./AdminDashboard.css";
 
             title:"Sessions Actives",
 
-            value:"891",
+            value:stat?.totalUsers ,
 
-            trend:"↑ +18%",
+        
 
             trendColor:"#16a34a",
 
-            description:"vs le mois dernier",
+            description:"",
 
             icon:<LuClock3 />,
 

@@ -1,8 +1,8 @@
 import axiosClient from "./axiosClient";
-import type { Role, UserRole } from "../types/role.types";
+import type {  RoleCount, Roles, UserRole } from "../types/role.types";
 
 export async function getRoles() {
-    const response = await axiosClient.get<Role[]>("/roles");
+    const response = await axiosClient.get<Roles[]>("/roles");
     return response.data;
 }
 
@@ -15,7 +15,18 @@ export async function updateUserRole(
     userId: string,
     roleId: string
 ) {
-    await axiosClient.put(`/users/${userId}/role`, {
-        roleId
-    });
+    const response = await axiosClient.post(
+        "/users/assign-roles",
+        {
+            userId,
+            roleIds: [roleId]
+        }
+    );
+
+    return response.data;
+}
+
+export async function getRolesCountByUsers() {
+    const response = await axiosClient.get<RoleCount[]>("/roles/stats");
+    return response.data;
 }

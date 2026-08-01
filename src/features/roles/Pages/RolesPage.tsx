@@ -1,179 +1,160 @@
+import { useEffect, useState } from "react";
+
 import RolesHeader from "../components/RolesHeader";
 import SearchBar from "../components/SearchBar";
-import "../styles/RolesPage.css"
 import RolesTable from "../components/RolesTable";
 import EditRoleModal from "../components/EditRoleModal";
-import { useState } from "react";
-import type { UserRole } from "../../../types/role.types";
 
-const usersrole=[
-  {
-    id: "1",
-    firstName: "Ahmed",
-    lastName: "Derif",
-    email: "ahmed.derif@ocpgroup.ma",
-    department: "Direction IT",
-    enabled: true,
-    role: {
-      id: "r1",
-      name: "ADMIN",
-      description: "Administrateur",
-      color: "#15803D",
-      usersCount: 1,
-    },
-  },
+import "../styles/RolesPage.css";
 
-  {
-    id: "2",
-    firstName: "Fatima",
-    lastName: "El Ankoud",
-    email: "fatima.elankoud@ocpgroup.ma",
-    department: "Développement",
-    enabled: true,
-    role: {
-      id: "r2",
-      name: "CHEF DE PROJET",
-      description: "Chef de Projet",
-      color: "#2563EB",
-      usersCount: 2,
-    },
-  },
-
-  {
-    id: "3",
-    firstName: "Sara",
-    lastName: "Bennani",
-    email: "sara.bennani@ocpgroup.ma",
-    department: "Finance",
-    enabled: true,
-    role: {
-      id: "r3",
-      name: "DIRECTEUR",
-      description: "Directeur",
-      color: "#D97706",
-      usersCount: 1,
-    },
-  },
-
-  {
-    id: "4",
-    firstName: "Youssef",
-    lastName: "Tazi",
-    email: "youssef.tazi@ocpgroup.ma",
-    department: "Production",
-    enabled: true,
-    role: {
-      id: "r4",
-      name: "EMPLOYÉ",
-      description: "Employé",
-      color: "#6B7280",
-      usersCount: 4,
-    },
-  },
-
-  {
-    id: "5",
-    firstName: "Imane",
-    lastName: "El Amrani",
-    email: "imane.elamrani@ocpgroup.ma",
-    department: "RH",
-    enabled: false,
-    role: {
-      id: "r4",
-      name: "EMPLOYÉ",
-      description: "Employé",
-      color: "#6B7280",
-      usersCount: 4,
-    },
-  },
-];
-
-const roles = [
-  {
-    id: "r1",
-    name: "ADMIN",
-    description: "Administrateur",
-    color: "#15803D",
-  },
-  {
-    id: "r2",
-    name: "DIRECTEUR",
-    description: "Directeur",
-    color: "#D97706",
-  },
-  {
-    id: "r3",
-    name: "CHEF DE PROJET",
-    description: "Chef de Projet",
-    color: "#2563EB",
-  },
-  {
-    id: "r4",
-    name: "EMPLOYÉ",
-    description: "Employé",
-    color: "#6B7280",
-  },
-  {
-    id: "r5",
-    name: "STAGIAIRE",
-    description: "Accès restreint",
-    color: "#9CA3AF",
-  },
-];
+import type { Roles, UserRole} from "../../../types/role.types";
+import { getUsers } from "../../../api/userApi";
+import { mapUserToUserRole } from "../../../mappers";
+import { getRoles, updateUserRole } from "../../../api/roleApi";
 
 
 
 
-function RolesPage(){
+function RolesPage() {
 
-const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
-const [selectedRoleId, setSelectedRoleId] = useState("");
-const [search,setsearch]=useState("");
-const usersfiltred= usersrole.filter((user)=>{
+  const [users, setUsers] = useState<UserRole[]>([]);
 
-  return(
-  user.lastName.toLowerCase().includes(search)||
-  user.firstName.toLowerCase().includes(search)||
-  user.lastName.toUpperCase().includes(search)||
-  user.firstName.toUpperCase().includes(search)||
-  user.lastName.includes(search)|| user.firstName.includes(search)
+  const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
 
- 
-);
-});
-const handlChange=(value:string)=>{
+  const [selectedRoleId, setSelectedRoleId] = useState("");
 
-    setsearch(value);
-  
-}
-const handleEditRole = (user: UserRole) => {
-    setSelectedUser(user);
-    setSelectedRoleId(user.role.id);
-};
+  const [search, setSearch] = useState("");
+  const [roles, setRoles] = useState<Roles[]>([]);
 
+  useEffect(() => {
 
+    async function fetchUsers() {
 
-    return(
-        <div className="roles-page">
+      try {
 
-         <RolesHeader  usersTotale={usersrole.length}/>
-         <SearchBar value={search} onChange={handlChange}/>
-         <RolesTable users={usersfiltred} onEditRole={handleEditRole}/>
+        const data = await getUsers();
 
-          <EditRoleModal
-           open={selectedUser !== null}
-           user={selectedUser}
-           roles={roles}
-           selectedRoleId={selectedRoleId}
-           onSelectRole={setSelectedRoleId}
-           onSave={() => {
-             console.log(selectedRoleId);
-                 setSelectedUser(null);}}
-          onClose={() => setSelectedUser(null)}
-/>
-        </div>
+        const usersForTable = data.map(mapUserToUserRole);
+
+        setUsers(usersForTable);
+
+      } catch (err) {
+
+        console.error(err);
+
+      }
+
+    }
+
+    fetchUsers();
+
+  }, []);
+  useEffect(()=>{
+    const fetchRoles = async () => {
+      try{
+        const roles = await getRoles();
+        setRoles(roles);
+      }catch(err){
+        console.error(err);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const usersFiltered = users.filter((user) => {
+
+    const value = search.toLowerCase();
+
+    return (
+
+      user.firstName.toLowerCase().includes(value) ||
+
+      user.lastName.toLowerCase().includes(value) ||
+
+      user.email.toLowerCase().includes(value) ||
+
+      user.department.toLowerCase().includes(value) ||
+
+      user.role.name.toLowerCase().includes(value)
 
     );
 
+  });
+
+  const handleChange = (value: string) => {
+
+    setSearch(value);
+
+  };
+
+  const handleEditRole = (user: UserRole) => {
+
+    setSelectedUser(user);
+
+    setSelectedRoleId(roles.find((role) => role.name === user.role.name)?.id || "");
+
+  };
+  const onSave = async()=>{
+    if(selectedUser && selectedRoleId){
+      try{
+        await updateUserRole(selectedUser.id, selectedRoleId);  
+        const data = await getUsers();
+        const usersForTable = data.map(mapUserToUserRole);
+        setUsers(usersForTable);
+
+        setSelectedUser(null);
+
+      }catch(err){
+        console.error(err);
+      }
+    }
+      
+  };
+
+  return (
+
+    <div className="roles-page">
+
+      <RolesHeader usersTotale={users.length} />
+
+      <SearchBar
+
+        value={search}
+
+        onChange={handleChange}
+
+      />
+
+      <RolesTable
+
+        users={usersFiltered}
+
+        onEditRole={handleEditRole}
+
+      />
+
+      <EditRoleModal
+
+        open={selectedUser !== null}
+
+        user={selectedUser}
+
+        roles={roles}
+
+        selectedRoleId={selectedRoleId}
+
+        onSelectRole={setSelectedRoleId}
+
+        onSave={onSave}
+
+        onClose={() => setSelectedUser(null)}
+
+      />
+
+    </div>
+
+  );
+
 }
-export default RolesPage ;
+
+export default RolesPage;
