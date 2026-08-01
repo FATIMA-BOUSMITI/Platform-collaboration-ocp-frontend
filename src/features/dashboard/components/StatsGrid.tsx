@@ -27,9 +27,8 @@ function StatsGrid({ stats}: Props){
 
                         title={stat.title}
 
-                        value={stat.value}
+                        value={stat.value !== undefined ? String(stat.value) : ""}
 
-                        trend={stat.trend}
 
                         trendColor={stat.trendColor}
 

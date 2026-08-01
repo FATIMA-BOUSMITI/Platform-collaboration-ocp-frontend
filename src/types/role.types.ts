@@ -1,10 +1,4 @@
-export interface Role {
-  id: string;
-  name: string;
-  description: string;
-  color?: string; //a supprimer apres 
-  usersCount?: number; // a supprimer
-}
+
 
 export interface UserRole {
   id: string;
@@ -12,6 +6,17 @@ export interface UserRole {
   lastName: string;
   email: string;
   department: string;
-  role: Role;
+  role: Roles;
   enabled: boolean;
+}
+
+export interface Roles{
+   id: string;
+  name: string;
+  description: string;
+}
+
+export interface RoleCount {
+  roleName: string;
+  userCount: number;
 }

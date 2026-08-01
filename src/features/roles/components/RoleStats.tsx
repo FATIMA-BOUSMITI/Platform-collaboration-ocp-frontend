@@ -1,49 +1,39 @@
+import { useEffect, useState } from "react";
 import "../styles/RoleStats.css";
+import type { RoleCount } from "../../../types/role.types";
+import { getRolesCountByUsers } from "../../../api/roleApi";
 
-const stats = [
-
-  {
-    count: 1,
-    label: "Administrateur",
-    color: "admin"
-  },
-
-  {
-    count: 1,
-    label: "Directeur",
-    color: "director"
-  },
-
-  {
-    count: 2,
-    label: "Chef de Projet",
-    color: "manager"
-  },
-
-  {
-    count: 3,
-    label: "Employé",
-    color: "employee"
-  }
-
-];
 
 function RoleStats() {
+  const [stat, setStat] = useState<RoleCount[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await getRolesCountByUsers();
+        setStat(response);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
 
     <div className="role-stats">
 
-      {stats.map((item) => (
+      {stat.map((item: RoleCount) => (
 
         <div
-          key={item.label}
-          className={`role-stat-card ${item.color}`}
+          key={item.roleName}
+          className={`role-stat-card ${item.roleName}`}
         >
 
-          <h2>{item.count}</h2>
+          <h2>{item.userCount}</h2>
 
-          <span>{item.label}</span>
+          <span>{item.roleName}</span>
 
         </div>
 

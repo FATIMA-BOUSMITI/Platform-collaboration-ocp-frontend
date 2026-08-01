@@ -1,7 +1,7 @@
 export interface DashboardStat {
   title: string;
-  value: string | number;
-  trend: string;
+  value?: string | number;
+
   trendColor: string;
   description: string;
   icon: React.ReactNode;
