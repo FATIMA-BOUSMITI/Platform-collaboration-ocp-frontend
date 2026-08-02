@@ -1,0 +1,49 @@
+.permissions-matrix{
+
+    background:#FFFFFF;
+
+    border-radius:18px;
+
+    box-shadow:0 4px 20px rgba(15,23,42,.06);
+
+    overflow:hidden;
+
+}
+
+.permissions-matrix table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.permissions-matrix thead{
+
+    background:#F8FAFC;
+
+}
+
+.permissions-matrix th{
+
+    padding:20px;
+
+    text-align:center;
+
+    color:#475569;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    border-bottom:1px solid #E5E7EB;
+
+}
+
+.permission-column{
+
+    text-align:left !important;
+
+    width:320px;
+
+}

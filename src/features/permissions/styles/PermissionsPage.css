@@ -1,0 +1,15 @@
+.permissions-page{
+
+    padding:32px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+    background:#F5F7FA;
+
+    min-height:100vh;
+
+}

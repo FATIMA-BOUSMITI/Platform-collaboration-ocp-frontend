@@ -5,6 +5,7 @@ import AdminDashboardPage from "../features/dashboard/AdminDashboardPage";
 import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import RolesPage from "../features/roles/Pages/RolesPage";
+import PermissionsPage from "../features/permissions/pages/PermissionsPage";
 
 function AppRouter() {
   return (
@@ -26,6 +27,10 @@ function AppRouter() {
           <Route
             path="/roles"
             element={<RolesPage />}
+          />
+          <Route
+            path="/permissions"
+            element={<PermissionsPage />}
           />
           
 
