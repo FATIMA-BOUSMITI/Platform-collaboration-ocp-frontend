@@ -1,0 +1,42 @@
+.permissions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 0px ;
+    padding: 0 
+}
+
+.save-permissions-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 16px ;
+
+    background: #167A45;
+    color: #fff;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 15px ;
+    font-weight: 300;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.save-permissions-btn:hover {
+    background: #13683b;
+    transform: translateY(-1px);
+}
+
+.save-permissions-btn:active {
+    transform: scale(0.98);
+}
+
+.save-permissions-btn svg {
+    flex-shrink: 0;
+}

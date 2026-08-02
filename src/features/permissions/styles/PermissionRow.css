@@ -1,0 +1,19 @@
+.permission-name{
+
+    padding:18px 22px;
+
+    font-size:15px;
+
+    color:#334155;
+
+    border-bottom:1px solid #EEF2F7;
+
+}
+
+.permission-cell{
+
+    text-align:center;
+
+    border-bottom:1px solid #EEF2F7;
+
+}

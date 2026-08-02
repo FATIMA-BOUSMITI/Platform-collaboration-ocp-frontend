@@ -1,0 +1,19 @@
+.permission-checkbox{
+
+    width:20px;
+
+    height:20px;
+
+    cursor:pointer;
+
+    accent-color:#167A45;
+
+    transition:.25s;
+
+}
+
+.permission-checkbox:hover{
+
+    transform:scale(1.15);
+
+}

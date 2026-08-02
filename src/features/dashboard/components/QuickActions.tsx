@@ -42,7 +42,7 @@ function QuickActions(){
                     title="Gérer les permissions"
 
                     icon={<FiShield/>}
-                    to=""
+                    to="/permissions"
                 />
 
                 <QuickActionButton

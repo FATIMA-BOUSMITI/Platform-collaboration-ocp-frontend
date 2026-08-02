@@ -6,6 +6,7 @@ import AdminLayout from "../layouts/AdminLayout";
 
 import ProtectedRoute from "./ProtectedRoute";
 import RolesPage from "../features/roles/Pages/RolesPage";
+import PermissionsPage from "../features/permissions/pages/PermissionsPage";
 
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
@@ -37,6 +38,10 @@ function AppRouter() {
           <Route
             path="/roles"
             element={<RolesPage />}
+          />
+          <Route
+            path="/permissions"
+            element={<PermissionsPage />}
           />
           
 
