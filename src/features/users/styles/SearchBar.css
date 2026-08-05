@@ -1,0 +1,43 @@
+.search-bar{
+
+    width:500px ;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    background:white;
+
+    border:1px solid #DDE8DF;
+
+    border-radius:12px;
+
+    padding:14px 18px;
+
+    margin-bottom:10px
+
+}
+
+.search-bar svg{
+
+    color:#9c9d9e;
+
+    font-size:16px 
+
+}
+
+.search-bar input{
+
+    width:100%;
+
+    border:none;
+
+    outline:none;
+
+    font-size:14px ;
+
+    background:transparent;
+
+}

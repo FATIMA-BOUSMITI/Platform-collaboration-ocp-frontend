@@ -1,10 +1,9 @@
 
-export interface User{
-     id: string;
-     email: string;
-     enabled: boolean;
-     accountLocked: boolean,
-     lastLogin: null,
-     createdAt: Date,
-     roleNames:  string[] 
+export interface User {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+  status: string;
+
 }

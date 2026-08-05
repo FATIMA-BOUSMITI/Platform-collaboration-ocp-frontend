@@ -1,0 +1,51 @@
+.filter-button{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    height:48px;
+
+    padding:0 22px;
+
+    border:1px solid #DDE8DF;
+
+    border-radius:12px;
+
+    background:white;
+
+    color:#344054;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.filter-button:hover{
+
+    border-color:#126B38;
+
+    background:#F8FAF9;
+
+}
+
+.filter-button svg{
+
+    font-size:18px;
+
+    color:#667085;
+
+}
+
+.filter-button span{
+
+    font-size:15px;
+
+    font-weight:500;
+
+}

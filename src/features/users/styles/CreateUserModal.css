@@ -1,0 +1,220 @@
+.modal-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.35);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:999;
+}
+
+.create-user-modal{
+
+    width:520px;
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.2);
+}
+
+.modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:22px 24px;
+
+    border-bottom:1px solid #E5ECE8;
+}
+
+.modal-header h2{
+
+    margin:0;
+
+    font-size:28px;
+
+    font-weight:400;
+}
+
+.close-button{
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    font-size:24px;
+
+    color:#777;
+}
+
+.modal-body{
+
+    padding:24px;
+}
+
+.two-columns{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:16px;
+
+    margin-bottom:18px;
+}
+
+.field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.field label{
+
+    font-size:15px;
+
+    color:#333;
+}
+
+.field input,
+.field select{
+
+    height:46px;
+
+    border:1px solid #DDE8DF;
+
+    border-radius:10px;
+
+    padding:0 14px;
+
+    font-size:14px;
+
+    outline:none;
+}
+
+.email-input{
+
+    display:flex;
+
+    align-items:center;
+
+    border:1px solid #DDE8DF;
+
+    border-radius:10px;
+
+    padding:0 14px;
+
+    height:46px;
+}
+
+.email-input svg{
+
+    color:#667085;
+}
+
+.email-input input{
+
+    flex:1;
+
+    border:none;
+
+    outline:none;
+
+    padding-left:10px;
+}
+
+.mfa-box{
+
+    display:flex;
+
+    gap:14px;
+
+    border:1px solid #DDE8DF;
+
+    border-radius:10px;
+
+    padding:18px;
+
+    margin-top:18px;
+}
+
+.mfa-box strong{
+
+    display:block;
+
+    margin-bottom:4px;
+}
+
+.mfa-box p{
+
+    margin:0;
+
+    color:#667085;
+
+    font-size:13px;
+}
+
+.modal-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    padding:20px 24px;
+
+    border-top:1px solid #E5ECE8;
+}
+
+.cancel-btn{
+
+    border:1px solid #DDE8DF;
+
+    background:white;
+
+    border-radius:10px;
+
+    padding:12px 22px;
+
+    cursor:pointer;
+}
+
+.create-btn{
+
+    background:#166534;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 22px;
+
+    cursor:pointer;
+}
+
+.create-btn:hover{
+
+    background:#14532d;
+}

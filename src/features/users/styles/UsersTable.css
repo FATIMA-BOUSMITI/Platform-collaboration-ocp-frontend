@@ -1,0 +1,47 @@
+.users-table{
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    border:1px solid #E4ECE6;
+
+}
+
+.users-table table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.users-table th{
+
+    text-align:left;
+
+    padding:20px 40px;
+
+    color:#667085;
+
+    font-size:14px;
+
+    font-weight:300;
+
+    border-bottom:1px solid #EEF2EF;
+
+    align-items:center;
+
+}
+
+.users-table td{
+
+    padding:22px 28px;
+
+    border-bottom:1px solid #EEF2EF;
+
+    align-items:center;
+
+}

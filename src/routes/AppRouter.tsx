@@ -11,7 +11,7 @@ import PermissionsPage from "../features/permissions/pages/PermissionsPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 
-
+import UsersPage from "../features/users/UsersPage";
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -35,6 +35,7 @@ function AppRouter() {
             path="/dashboard"
             element={<AdminDashboardPage />}
           />
+            <Route path="/users" element={<UsersPage />} />
           <Route
             path="/roles"
             element={<RolesPage />}
@@ -52,7 +53,9 @@ function AppRouter() {
         <Route
     path="/reset-password"
     element={<ResetPasswordPage />}
-/>
+    />
+    <Route path="/users" element={<UsersPage />} />
+
       </Routes>
     </BrowserRouter>
   );

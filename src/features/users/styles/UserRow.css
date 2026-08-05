@@ -1,0 +1,19 @@
+.status.active{
+
+    background:#E8F8ED;
+
+    color:#15803D;
+
+    font-size:14px;
+
+}
+
+.status.inactive{
+
+    background:#FDECEC;
+
+    color:#DC2626;
+
+    font-size:14px;
+
+}
