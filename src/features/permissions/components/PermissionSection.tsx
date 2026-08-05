@@ -4,23 +4,35 @@ import type { Roles} from "../../../types/role.types";
 
 import "../styles/PermissionSection.css";
 
-interface Props {
 
-    title: string;
+
+   
+    interface Props {
 
     permissions: Permission[];
 
     roles: Roles[];
 
+    rolePermissions: Record<string, Permission[]>;
+
+    onPermissionChange: (
+        roleId: string,
+        permission: Permission,
+        checked: boolean
+    ) => void;
 }
+
+
 
 export default function PermissionSection({
 
-    title,
 
     permissions,
 
-    roles
+    roles,
+
+    rolePermissions,
+    onPermissionChange
 
 }: Props) {
 
@@ -28,15 +40,13 @@ export default function PermissionSection({
 
         <>
 
-            <tr className="section-title">
+            {/* <tr className="section-title">
 
-                <td colSpan={roles.length + 1}>
+               <td colSpan={roles.length + 1}>
 
                     {title}
 
-                </td>
-
-            </tr>
+                </td> </tr>*/}
 
             {
 
@@ -49,6 +59,9 @@ export default function PermissionSection({
                         permission={permission}
 
                         roles={roles}
+                        
+                        rolePermissions={rolePermissions}
+                         onPermissionChange={onPermissionChange}
 
                     />
 

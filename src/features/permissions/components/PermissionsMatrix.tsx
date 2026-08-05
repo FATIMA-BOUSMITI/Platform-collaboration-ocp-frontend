@@ -10,13 +10,24 @@ interface Props{
 
     permissions: Permission[];
 
+    rolePermissions: Record<string, Permission[]>;
+
+    onPermissionChange: (
+    roleId: string,
+    permission: Permission,
+    checked: boolean
+) => void;
+
 }
 
 export default function PermissionsMatrix({
 
     roles,
 
-    permissions
+    permissions ,
+
+     rolePermissions,
+     onPermissionChange
 
 }:Props){
 
@@ -51,10 +62,12 @@ export default function PermissionsMatrix({
                 
                    <tbody>
 
-                       <PermissionSection title="Gestion des Utilisateurs" permissions={permissions} roles={roles}
-
+                      <PermissionSection
+                    permissions={permissions}
+                   roles={roles}
+                  rolePermissions={rolePermissions}
+                  onPermissionChange={onPermissionChange}
 />
-
 </tbody>
             
 

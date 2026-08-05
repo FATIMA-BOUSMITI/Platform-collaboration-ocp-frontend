@@ -4,7 +4,7 @@ interface Props {
 
     checked: boolean;
 
-    onChange: () => void;
+    onChange: (checked: boolean) => void;
 
 }
 
@@ -15,13 +15,14 @@ export default function PermissionCheckbox({
     onChange
 
 }: Props) {
+    
 
     return (
 
         <input
             type="checkbox"
             checked={checked}
-            onChange={onChange}
+            onChange={(e) => onChange(e.target.checked)}
             className="permission-checkbox"
         />
 
