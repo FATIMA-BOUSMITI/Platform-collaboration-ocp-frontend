@@ -1,7 +1,4 @@
-
-import API from "./axios";
-
-
+import axiosClient from "./axiosClient";
 
 export interface LoginRequest {
     email: string;
@@ -11,7 +8,7 @@ export interface LoginRequest {
 
 export const login = async (data: LoginRequest) => {
 
-    const response = await API.post(
+    const response = await axiosClient.post(
         "/auth/login",
         data
     );
@@ -19,7 +16,7 @@ export const login = async (data: LoginRequest) => {
     return response.data;
 };
 export const forgotPassword = async (data: { email: string }) => {
-  const response = await API.post(
+  const response = await axiosClient.post(
     "/auth/forgot-password",
     data
   );
@@ -34,7 +31,7 @@ export interface ResetPasswordRequest {
 export const resetPassword = async (
     data: ResetPasswordRequest
 ) => {
-    return API.post(
+    return axiosClient.post(
         "/auth/reset-password",
         data
     );

@@ -1,5 +1,4 @@
 
-
 export interface UserRole {
   id: string;
   firstName: string;
@@ -11,12 +10,14 @@ export interface UserRole {
 }
 
 export interface Roles{
-   id: string;
+  id: string;
   name: string;
   description: string;
 }
 
 export interface RoleCount {
+
   roleName: string;
   userCount: number;
+
 }
