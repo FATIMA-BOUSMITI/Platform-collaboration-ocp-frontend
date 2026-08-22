@@ -6,22 +6,15 @@ import {
   MdOutlineLogout,
   MdOutlineClose
 } from "react-icons/md";
-import { FiUsers } from "react-icons/fi";
+
 import { RiTeamFill } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
-import { FiShield } from "react-icons/fi";
-
 import SidebarItem from "./SidebarItem";
 import SidebarSection from "./SidebarSection";
-/*import { FiClock } from "react-icons/fi";
-import { FiActivity } from "react-icons/fi";
-import { FiAlertTriangle } from "react-icons/fi";*/
-import { FiSettings } from "react-icons/fi";
 import { FiBell } from "react-icons/fi";
-import { FiDatabase } from "react-icons/fi";
-import { FiShieldOff } from "react-icons/fi";
-
-
+import { FaRegMessage } from "react-icons/fa6";
+import { FaRegFolder } from "react-icons/fa6";
+import { LuKanban } from "react-icons/lu";
 interface SidebarProps {
   isOpen: boolean;
   onClose?: () => void;
@@ -30,7 +23,7 @@ interface SidebarProps {
 
 
 
-function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
+function Managersidebar({ isOpen, onClose,onLogout }: SidebarProps) {
   return (
     <aside className={`sidebar ${isOpen ? "open" : ""}`}>
 
@@ -55,68 +48,60 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         {/* Zone qui peut défiler */}
         <nav className="sidebar-menu">
 
-          <SidebarSection title="DASHBOARD" />
+          <SidebarSection title="TABLEAU DE BORD" />
 
       <SidebarItem
         to="/dashboard"
         icon={<MdOutlineDashboard />}
-        label="Dashboard"
+        label="Vue d'ensemble"
         onClick={onClose}
       />
 
-      <SidebarSection title="USERS" />
+      <SidebarSection title="MON ÉQUIPE" />
 
       <SidebarItem
-        to="/users"
-        icon={<FiUsers/>}
-        label="Liste des utilisateurs"
+        to="/teams"
+        icon={<RiTeamFill/>}
+        label="Membres"
         onClick={onClose}
       />
+      
+      
+
+      <SidebarSection title="Projets" />
+
       <SidebarItem
-        to="/profile"
-        icon={<FaRegUser />}
-        label="Profile"
+        to="/projets"
+        icon={<LuKanban />}
+        label="Gestion Kanban"
+        onClick={onClose}
+      />
+      <SidebarSection title="RESSOURCES" />
+
+      <SidebarItem
+        to="/documents"
+        icon={<FaRegFolder />}
+        label="Documents"
         onClick={onClose}
       />
       
 
-      <SidebarSection title="ORGANISATION" />
+      <SidebarSection title="COMMUNICATION" />
 
       <SidebarItem
-        to="/departments"
-        icon={<MdBusiness />}
-        label="Départements"
+        to="/messages"
+        icon={<FaRegMessage/>}
+        label="Messagerie"
         onClick={onClose}
       />
       <SidebarItem
-        to="/teams"
-        icon={<RiTeamFill/>}
-        label="Équipes"
-        onClick={onClose}
-      />
-
-      <SidebarSection title="SECURITY" />
-
-      <SidebarItem
-        to="/roles"
-        icon={<FiShield />}
-        label="Rôles"
-        onClick={onClose}
-      />
-      <SidebarItem
-        to="/permissions"
-        icon={<FiShieldOff />}
-        label="Permissions"
+        to="/notifications"
+        icon={<FiBell/>}
+        label="Notifications"
         onClick={onClose}
       />
      
-
-      <SidebarItem
-        to="/sessions"
-        icon={<FiShield />}
-        label="Sessions"
-        onClick={onClose}
-      />
+      
      {/*<SidebarSection title=" MONITORING" />
       <SidebarItem
         to="/logs"
@@ -137,23 +122,11 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
         onClick={onClose}
       />*/}
 
-      <SidebarSection title=" SETTINGS" />
+      <SidebarSection title=" COMPTE" />
       <SidebarItem
-        to="/settings"
-        icon={<FiSettings />}
-        label="General"
-        onClick={onClose}
-      />
-      <SidebarItem
-        to="/notifications"
-        icon={<FiBell />}
-        label="Notifications"
-        onClick={onClose}
-      />
-       <SidebarItem
-        to="/backup"
-        icon={<FiDatabase />}
-        label="Backup"
+        to="/profile"
+        icon={<FaRegUser />}
+        label="Profile"
         onClick={onClose}
       />
 
@@ -177,4 +150,4 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
   );
 }
 
-export default Sidebar;
+export default Managersidebar;

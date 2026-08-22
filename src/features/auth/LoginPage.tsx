@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
 import { login } from "../../api/authApi.ts";
-import { useAuthStore } from "./AuthStore";
-
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import {jwtDecode} from "jwt-decode";
+import {getUserById} from "../../api/userApi.ts";
 
 import "./LoginPage.css";
+import { useAuthStore } from "./AuthStore.ts";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -24,7 +24,6 @@ function LoginPage() {
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
-
     setSubmitted(true);
 
     if (!email || !password) {
@@ -45,8 +44,31 @@ function LoginPage() {
           "accessToken",
           response.accessToken
         );
+        const payload = jwtDecode(response.accessToken) as any;
+        //console.log("Decoded JWT Payload:", payload);
+        const user = await getUserById(payload.userId);
 
-        navigate("/dashboard");
+        const role = user.roleNames[0];
+
+      useAuthStore.getState().login(
+        response.accessToken,
+        response.refreshToken,
+        role
+       );
+
+        //console.log("Role :", role);
+        if (role === "ADMIN") {
+          navigate("/dashboard");
+         }
+        else if (role === "DIRECTOR") {
+         navigate("/director");
+        }
+        else if (role === "MANAGER") {
+         navigate("/manager");
+      }
+      else if (role === "EMPLOYEE") {
+        navigate("/employee");
+      }
       }
     } catch (error: any) {
       setError(
