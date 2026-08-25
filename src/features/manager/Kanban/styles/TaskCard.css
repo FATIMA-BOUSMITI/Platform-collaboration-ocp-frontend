@@ -1,0 +1,85 @@
+.kanban-task-card {
+    background: white;
+    border: 1px solid #dce5e1;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 16px;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.task-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.priority {
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.priority.low {
+    background: #e9f9ef;
+    color: #008a45;
+}
+
+.priority.medium {
+    background: #fff8e5;
+    color: #c87500;
+}
+
+.priority.high {
+    background: #fff0f0;
+    color: #e00000;
+}
+
+.task-menu {
+    border: none;
+    background: transparent;
+    color: #72817b;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.kanban-task-card h3 {
+    margin: 18px 0 28px;
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 300;
+    color: #26352f;
+}
+
+.task-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assignee {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+    background: #e8f0ff;
+    color: #3674d9;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 13px;
+}
+
+.comments {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #71817a;
+}
+
+.comments svg {
+    font-size: 18px;
+}

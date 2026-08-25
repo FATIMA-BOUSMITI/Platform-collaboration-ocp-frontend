@@ -13,7 +13,7 @@ import SidebarSection from "./SidebarSection";
 import { FiBell } from "react-icons/fi";
 import { FaRegMessage } from "react-icons/fa6";
 import { FaRegFolder } from "react-icons/fa6";
-import { LuKanban } from "react-icons/lu";
+
 interface SidebarProps {
   isOpen: boolean;
   onClose?: () => void;
