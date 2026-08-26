@@ -1,0 +1,238 @@
+.kanban-task-card {
+
+    background: white;
+
+    border: 1px solid #dce6e1;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.05);
+
+    cursor: grab;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.kanban-task-card:active {
+
+    cursor: grabbing;
+}
+
+
+.kanban-task-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+
+.task-card-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 14px;
+}
+
+
+.priority-badge {
+
+    padding: 7px 12px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+.priority-badge.low {
+
+    background: #e9f8ef;
+
+    color: #008a48;
+}
+
+
+.priority-badge.medium {
+
+    background: #fff8e4;
+
+    color: #d47b00;
+}
+
+
+.priority-badge.high {
+
+    background: #fff0f0;
+
+    color: #e60000;
+}
+
+
+.task-menu {
+
+    position: relative;
+}
+
+
+.task-menu-button {
+
+    border: none;
+
+    background: transparent;
+
+    color: #7b8a84;
+
+    cursor: pointer;
+
+    font-size: 20px;
+}
+
+
+.task-menu-dropdown {
+
+    display: none;
+
+    position: absolute;
+
+    right: 0;
+
+    top: 30px;
+
+    width: 130px;
+
+    background: white;
+
+    border: 1px solid #dce6e1;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.12);
+
+    z-index: 20;
+
+    overflow: hidden;
+}
+
+
+.task-menu:hover
+.task-menu-dropdown {
+
+    display: block;
+}
+
+
+.task-menu-dropdown button {
+
+    width: 100%;
+
+    border: none;
+
+    background: white;
+
+    padding: 10px 14px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    color: #34443e;
+}
+
+
+.task-menu-dropdown button:hover {
+
+    background: #f2f7f4;
+}
+
+
+.task-title {
+
+    margin: 0 0 8px;
+
+    font-size: 17px;
+
+    font-weight: 500;
+
+    line-height: 1.4;
+
+    color: #293a34;
+}
+
+
+.task-description {
+
+    margin: 0 0 18px;
+
+    color: #71817a;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+.task-card-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding-top: 14px;
+
+    border-top: 1px solid #edf1ef;
+}
+
+
+.assignee {
+
+    width: 30px;
+
+    height: 30px;
+
+    border-radius: 50%;
+
+    background: #e6efff;
+
+    color: #2f65b0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+
+.comments {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: #77857f;
+
+    font-size: 13px;
+}

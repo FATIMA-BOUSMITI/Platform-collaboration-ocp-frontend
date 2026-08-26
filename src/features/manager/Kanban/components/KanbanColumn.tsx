@@ -1,64 +1,162 @@
 import { FiPlus } from "react-icons/fi";
 
-import TaskCard from "./TaskCard";
+import KanbanTaskCard from "./KanbanTaskCard";
+import EmptyColumn from "./EmptyColumn";
 
 import type {
-    Task,
+    KanbanTask,
     TaskStatus
 } from "../types/Kanban.Types";
 
 import "../styles/KanbanColumn.css";
 
+
 interface Props {
+
     title: string;
+
     status: TaskStatus;
-    tasks: Task[];
+
+    tasks: KanbanTask[];
+
+    onAddTask: (
+        status: TaskStatus
+    ) => void;
+
+    onEditTask: (
+        task: KanbanTask
+    ) => void;
+
+    onDeleteTask: (
+        taskId: string
+    ) => void;
+
+    onMoveTask: (
+        taskId: string,
+        status: TaskStatus
+    ) => void;
 }
 
+
 export default function KanbanColumn({
+
     title,
+
     status,
-    tasks
+
+    tasks,
+
+    onAddTask,
+
+    onEditTask,
+
+    onDeleteTask,
+
+    onMoveTask
+
 }: Props) {
 
+
+    const handleDragOver = (
+        e: React.DragEvent
+    ) => {
+
+        e.preventDefault();
+
+    };
+
+
+    const handleDrop = (
+        e: React.DragEvent
+    ) => {
+
+        e.preventDefault();
+
+        const taskId =
+            e.dataTransfer.getData(
+                "taskId"
+            );
+
+        if (!taskId) {
+            return;
+        }
+
+        onMoveTask(
+            taskId,
+            status
+        );
+    };
+
+
     return (
-        <div className={`kanban-column ${status.toLowerCase()}`}>
+
+        <div
+            className="kanban-column"
+
+            onDragOver={handleDragOver}
+
+            onDrop={handleDrop}
+        >
 
             <div className="kanban-column-header">
 
                 <div className="column-title">
 
-                    <span className="status-dot"></span>
+                    <span
+                        className={`status-dot ${status.toLowerCase()}`}
+                    />
 
-                    <span>{title}</span>
+                    <span>
+                        {title}
+                    </span>
 
                     <span className="task-count">
+
                         {tasks.length}
+
                     </span>
 
                 </div>
 
-                <button className="add-task-button">
+
+                <button
+
+                    type="button"
+
+                    className="add-task-button"
+
+                    onClick={() =>
+                        onAddTask(status)
+                    }
+
+                >
                     <FiPlus />
+
                 </button>
 
             </div>
+
 
             <div className="kanban-column-body">
 
                 {tasks.length === 0 ? (
 
-                    <div className="empty-column">
-                        Déposez des tâches ici
-                    </div>
+                    <EmptyColumn />
 
                 ) : (
 
                     tasks.map(task => (
 
-                        <TaskCard
+                        <KanbanTaskCard
+
                             key={task.id}
+
                             task={task}
+
+                            onEdit={onEditTask}
+
+                            onDelete={onDeleteTask}
+
                         />
 
                     ))

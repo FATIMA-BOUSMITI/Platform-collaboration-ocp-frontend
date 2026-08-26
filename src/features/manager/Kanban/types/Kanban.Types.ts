@@ -1,13 +1,27 @@
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE" | "ARCHIVED";
+export type TaskStatus =
+    | "TODO"
+    | "IN_PROGRESS"
+    | "DONE";
 
-export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type TaskPriority =
+    | "LOW"
+    | "MEDIUM"
+    | "HIGH";
 
-export interface Task {
+export interface KanbanTask {
+
     id: string;
+
     title: string;
+
+    description?: string;
+
     priority: TaskPriority;
+
     status: TaskStatus;
-    assignee?: string;
-    comments?: number;
-    commentsCount?: number;
+
+    assignee: string;
+
+    commentsCount: number;
+
 }
