@@ -1,10 +1,26 @@
 export interface Project {
     id: string;
+    reference?: string;
+
     name: string;
-    manager: string;
-    department: string;
-    deadline: string;
     description: string;
+
+    responsableId?: string;
+    departmentId?: string;
+
+    startDate?: string;
+    endDate?: string;
+
+    projectPriority?: string;
+    status?: string;
+
     progress: number;
-    membersCount: number;
+
+    budget?: number;
+
+    // Pour l'affichage actuel
+    manager?: string;
+    department?: string;
+    deadline?: string;
+    membersCount?: number;
 }

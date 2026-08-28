@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import KanbanHeader from "../components/KanbanHeader";
 import KanbanBoard from "../components/KanbanBoard";
@@ -13,6 +13,7 @@ import type {
 
 import "../styles/KanbanPage.css";
 import ProjectCard from "../components/ProjectCard";
+import { getProjects } from "../../../../api/projectApi";
 
 
 const initialTasks: KanbanTask[] = [
@@ -70,29 +71,22 @@ export default function KanbanPage() {
 const [projectModalOpen, setProjectModalOpen] =
     useState(false);
 
-const [projects, setProjects] =
-    useState<Project[]>([
-        {
-            id: "1",
-            name: "Migration SAP S/4HANA",
-            manager: "Youssef El Fassi",
-            department: "IT",
-            deadline: "2026-12-15",
-            description: "Migration du système SAP.",
-            progress: 65,
-            membersCount: 8
-        },
-        {
-            id: "2",
-            name: "Déploiement MFA Global",
-            manager: "Ahmed Darif",
-            department: "IT",
-            deadline: "2026-08-30",
-            description: "Déploiement MFA.",
-            progress: 90,
-            membersCount: 4
+const [projects, setProjects] =useState<Project[]>([]);
+
+
+useEffect(() => {
+    // Fetch projects from the API when the component mounts
+    async function fetchProjects() {
+        try {
+            const  response = await getProjects();  
+            setProjects(response);
+        } catch (error) {
+            console.error("Erreur lors du chargement des projets :", error);
         }
-    ]);
+       
+    }
+    fetchProjects();
+}, []);
     /*
      * Ouvrir le modal pour créer
      */
@@ -265,15 +259,15 @@ const [projects, setProjects] =
         )}
 
 
-        {/* ===================== */}
+        
         {/* VUE PROJETS */}
-        {/* ===================== */}
+       
 
         {view === "projects" && (
 
     <div className="projects-grid">
 
-        {projects.map(project => (
+        {projects?.map(project => (
 
             <ProjectCard
                 key={project.id}
@@ -286,11 +280,8 @@ const [projects, setProjects] =
 
 )}
 
-
-        {/* ===================== */}
         {/* TASK MODAL */}
-        {/* ===================== */}
-
+        
         {modalOpen && (
 
             <TaskModal
@@ -312,9 +303,9 @@ const [projects, setProjects] =
         )}
 
 
-        {/* ===================== */}
+        
         {/* PROJECT MODAL */}
-        {/* ===================== */}
+       
 
         {projectModalOpen && (
 

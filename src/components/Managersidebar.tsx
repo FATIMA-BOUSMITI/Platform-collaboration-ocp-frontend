@@ -70,7 +70,7 @@ function Managersidebar({ isOpen, onClose,onLogout }: SidebarProps) {
       <SidebarSection title="Projets" />
 
       <SidebarItem
-        to="/manager/kanban"
+        to="/kanban"
         icon={<LuKanban />}
         label="Gestion Kanban"
         onClick={onClose}

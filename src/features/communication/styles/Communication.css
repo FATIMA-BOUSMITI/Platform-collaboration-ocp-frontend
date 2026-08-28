@@ -1,15 +1,8 @@
-/* ==========================================================================
-   communication.css
-   Styles pour le module Communication (sidebar, chat, modal création canal)
-   À importer dans CommunicationPage.tsx : import "../communication.css";
-   S'appuie sur les variables réelles définies dans :root (theme.css)
-   ========================================================================== */
 
-/* ---------- Layout général de la page ---------- */
 
 .communication-page {
   display: flex;
-  height: calc(100vh - 64px); /* ajuste selon la hauteur de ton header global */
+  height: calc(90vh ); /* ajuste selon la hauteur de ton header global */
   background-color: var(--background);
 }
 
@@ -28,7 +21,7 @@
 }
 
 .sidebar-search {
-  padding: 16px 20px;
+  padding: 20px 20px 0px;
 }
 
 .sidebar-search input {
@@ -52,7 +45,7 @@
 }
 
 .sidebar-section {
-  padding: 12px 20px;
+  padding: 0px 20px;
 }
 
 .sidebar-section-header {
@@ -60,10 +53,10 @@
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.04em;
   color: var(--text-light);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .sidebar-section-header button {
@@ -73,7 +66,7 @@
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 0px 6px;
   border-radius: 6px;
   transition: background-color var(--transition), color var(--transition);
 }
@@ -89,8 +82,8 @@
   text-align: left;
   background: none;
   border: none;
-  padding: 10px 12px;
-  margin-bottom: 2px;
+  padding: 8px 12px;
+  margin-bottom: 0px;
   border-radius: var(--radius);
   font-size: 15px;
   color: var(--text);
@@ -105,7 +98,7 @@
 .conversation-item.active {
   background-color: rgba(13, 123, 66, 0.1); /* teinte de --primary, transparente */
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* ==========================================================================
@@ -124,7 +117,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 24px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -138,13 +131,13 @@
   background-color: rgba(13, 123, 66, 0.1);
   color: var(--primary);
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 400;
   flex-shrink: 0;
 }
 
 .chat-header h2 {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text);
   margin: 0;
 }
@@ -185,7 +178,7 @@
 
 .chat-message .message-time {
   display: block;
-  margin-top: 6px;
+  margin-top: 0px;
   font-size: 11px;
   color: var(--text-light);
 }
@@ -293,7 +286,7 @@
 
 .modal-header h2 {
   font-size: 19px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text);
   margin: 0;
 }
@@ -316,7 +309,7 @@
 .modal-content form label {
   display: block;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text);
   margin-bottom: 6px;
   margin-top: 16px;

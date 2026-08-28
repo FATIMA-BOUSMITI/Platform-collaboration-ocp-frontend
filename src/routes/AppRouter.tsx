@@ -82,7 +82,7 @@ function AppRouter() {
             path="/manager"
             element={<ManagerDashboardPage />}
         />
-        <Route path="/manager/kanban"  element={<ManagerKanbanPage />}/>
+        <Route path="/kanban"  element={<ManagerKanbanPage />}/>
         <Route path="/messages" element={<CommunicationPage />} />
     </Route>
 
