@@ -19,6 +19,8 @@ import EmployeeDashboardPage from "../features/employee/pages/EmployeeDashboardP
 import ManagerLayout from "../layouts/ManagerLayout";
 import EmployeeLayout from "../layouts/EmployeeLayout"; 
 import RoleRoute from "./RoleRoute";
+import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
+import CommunicationPage from "../features/communication/pages/CommunicationPage";
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -80,7 +82,8 @@ function AppRouter() {
             path="/manager"
             element={<ManagerDashboardPage />}
         />
-
+        <Route path="/kanban"  element={<ManagerKanbanPage />}/>
+        <Route path="/messages" element={<CommunicationPage />} />
     </Route>
 
 

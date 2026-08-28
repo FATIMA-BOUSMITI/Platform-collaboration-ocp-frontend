@@ -2,7 +2,6 @@ import "./styles/Sidebar.css";
 
 import {
   MdOutlineDashboard,
-  MdBusiness,
   MdOutlineLogout,
   MdOutlineClose
 } from "react-icons/md";
@@ -51,7 +50,7 @@ function Managersidebar({ isOpen, onClose,onLogout }: SidebarProps) {
           <SidebarSection title="TABLEAU DE BORD" />
 
       <SidebarItem
-        to="/dashboard"
+        to="/manager"
         icon={<MdOutlineDashboard />}
         label="Vue d'ensemble"
         onClick={onClose}
@@ -71,7 +70,7 @@ function Managersidebar({ isOpen, onClose,onLogout }: SidebarProps) {
       <SidebarSection title="Projets" />
 
       <SidebarItem
-        to="/projets"
+        to="/kanban"
         icon={<LuKanban />}
         label="Gestion Kanban"
         onClick={onClose}

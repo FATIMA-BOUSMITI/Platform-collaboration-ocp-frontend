@@ -1,0 +1,239 @@
+/* =========================
+   PROJECT CARD
+========================= */
+
+.project-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8e4;
+
+    border-radius: 16px;
+
+    padding: 24px;
+
+    min-height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 2px 8px rgba(31, 48, 41, 0.06);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.project-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 20px rgba(31, 48, 41, 0.10);
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.project-card-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 15px;
+
+    margin-bottom: 14px;
+}
+
+
+.project-card-header h2 {
+    margin: 0;
+
+    font-size: 19px;
+
+    line-height: 1.35;
+
+    font-weight: 700;
+
+    color: #1f3029;
+}
+
+
+/* =========================
+   DEPARTMENT
+========================= */
+
+.project-department {
+    flex-shrink: 0;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #eef5f1;
+
+    color: #2f6b4f;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================
+   DESCRIPTION
+========================= */
+
+.project-description {
+    margin: 0 0 20px;
+
+    color: #68766f;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    min-height: 42px;
+}
+
+
+/* =========================
+   INFO
+========================= */
+
+.project-info {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid #edf1ef;
+}
+
+
+.project-info-label {
+    font-size: 13px;
+
+    color: #7a8781;
+}
+
+
+.project-info-value {
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #35463d;
+}
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+.project-progress {
+    margin-top: 20px;
+}
+
+
+.project-progress-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #35463d;
+}
+
+
+.progress-bar {
+    width: 100%;
+
+    height: 8px;
+
+    background: #e8eeeb;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+
+.progress-bar-fill {
+    height: 100%;
+
+    border-radius: 10px;
+
+    background: #2f6b4f;
+
+    transition: width 0.3s ease;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.project-card-footer {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: auto;
+
+    padding-top: 20px;
+}
+
+
+.project-card-footer > span {
+    font-size: 12px;
+
+    color: #68766f;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+.project-view-button {
+    border: none;
+
+    background: transparent;
+
+    color: #2f6b4f;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 6px 0;
+}
+
+
+.project-view-button:hover {
+    text-decoration: underline;
+}
