@@ -1,19 +1,32 @@
 
+<<<<<<< Updated upstream
+=======
+export interface Role {
+  id: string;
+  name: string;
+  description: string;
+}
+
+>>>>>>> Stashed changes
 export interface UserRole {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   department: string;
-  role: Roles;
+  role: Role;
   enabled: boolean;
 }
 
+<<<<<<< Updated upstream
 export interface Roles{
   id: string;
   name: string;
   description: string;
 }
+=======
+export interface Roles extends Role {}
+>>>>>>> Stashed changes
 
 export interface RoleCount {
 

@@ -1,25 +1,26 @@
-import type { User } from "./types/User.type"
-import type { UserRole } from "./types/role.types"
+import type { User } from "./types/User.type";
+import type { UserRole } from "./types/role.types";
 
 export function mapUserToUserRole(user: User): UserRole {
-   
-    return {
-          id: user.id ,
-          firstName: "Utilisateur",
-          lastName: "",
-          department: "À définir",
-          email: user.email,
-          role:  {
+  const roles = Array.isArray(user.roles)
+    ? user.roles
+    : user.roles && typeof user.roles === "object" && "name" in user.roles
+      ? [user.roles as typeof user.roles]
+      : [];
 
-            id: "",
+  const primaryRole = roles[0];
 
-            name: user.roleNames[0] ?? "Aucun rôle",
-
-            description: ""
-
-        }
-          ,
-          enabled: user.enabled,
-
-    };
+  return {
+    id: user.id,
+    firstName: user.firstName ?? "Utilisateur",
+    lastName: user.lastName ?? "",
+    department: user.departement?.name ?? "À définir",
+    email: user.email,
+    role: {
+      id: primaryRole?.id ?? "",
+      name: primaryRole?.name ?? user.roleNames?.[0] ?? "Aucun rôle",
+      description: primaryRole?.description ?? "",
+    },
+    enabled: user.enabled ?? true,
+  };
 }

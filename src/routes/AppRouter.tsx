@@ -12,6 +12,7 @@ import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 
 import UsersPage from "../features/users/UsersPage";
+<<<<<<< Updated upstream
 import DirectorLayout from "../layouts/DirectorLayout";
 import DirectorDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
 import ManagerDashboardPage from "../features/manager/pages/ManagerDashboardPage";
@@ -21,6 +22,12 @@ import EmployeeLayout from "../layouts/EmployeeLayout";
 import RoleRoute from "./RoleRoute";
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
+=======
+import DepartmentsPage from "../features/departments/DepartmentsPage";
+import TeamsPage from "../features/teams/TeamsPage";
+import ProfilePage from "../features/profile/ProfilePage";
+
+>>>>>>> Stashed changes
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -44,6 +51,7 @@ function AppRouter() {
         <Route
             path="/dashboard"
             element={<AdminDashboardPage />}
+<<<<<<< Updated upstream
         />
 
         <Route
@@ -52,6 +60,14 @@ function AppRouter() {
         />
 
         <Route
+=======
+          />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/departments" element={<DepartmentsPage />} />
+          <Route path="/teams" element={<TeamsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route
+>>>>>>> Stashed changes
             path="/roles"
             element={<RolesPage />}
         />

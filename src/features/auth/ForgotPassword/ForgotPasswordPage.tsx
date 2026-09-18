@@ -1,8 +1,8 @@
 import { HiOutlineEnvelope } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import Input from "../../../components/Input";
+import Button from "../../../components/Button";
 
 import "./ForgotPasswordPage.css";
 
