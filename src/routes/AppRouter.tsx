@@ -12,117 +12,56 @@ import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 
 import UsersPage from "../features/users/UsersPage";
-<<<<<<< Updated upstream
 import DirectorLayout from "../layouts/DirectorLayout";
-import DirectorDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
+import DirectorDashboardPage from "../features/director/pages/DirectorDashboardPage";
 import ManagerDashboardPage from "../features/manager/pages/ManagerDashboardPage";
 import EmployeeDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
 import ManagerLayout from "../layouts/ManagerLayout";
-import EmployeeLayout from "../layouts/EmployeeLayout"; 
+import EmployeeLayout from "../layouts/EmployeeLayout";
 import RoleRoute from "./RoleRoute";
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
-=======
 import DepartmentsPage from "../features/departments/DepartmentsPage";
 import TeamsPage from "../features/teams/TeamsPage";
 import ProfilePage from "../features/profile/ProfilePage";
 
->>>>>>> Stashed changes
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Routes publiques */}
-      
         <Route path="/" element={<LoginPage />} />
-        <Route
-          path="/forgot-password"
-          element={<ForgotPasswordPage />}
-        />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Routes protégées */}
         <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/dashboard" element={<AdminDashboardPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/departments" element={<DepartmentsPage />} />
+              <Route path="/teams" element={<TeamsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/roles" element={<RolesPage />} />
+              <Route path="/permissions" element={<PermissionsPage />} />
+            </Route>
+          </Route>
 
-       {/* ADMIN */}
-       <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
-       <Route element={<AdminLayout />}>
+          <Route element={<DirectorLayout />}>
+            <Route path="/director" element={<DirectorDashboardPage />} />
+          </Route>
 
-        <Route
-            path="/dashboard"
-            element={<AdminDashboardPage />}
-<<<<<<< Updated upstream
-        />
+          <Route element={<ManagerLayout />}>
+            <Route path="/manager" element={<ManagerDashboardPage />} />
+            <Route path="/kanban" element={<ManagerKanbanPage />} />
+            <Route path="/messages" element={<CommunicationPage />} />
+          </Route>
 
-        <Route
-            path="/users"
-            element={<UsersPage />}
-        />
+          <Route element={<EmployeeLayout />}>
+            <Route path="/employee" element={<EmployeeDashboardPage />} />
+          </Route>
+        </Route>
 
-        <Route
-=======
-          />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/departments" element={<DepartmentsPage />} />
-          <Route path="/teams" element={<TeamsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route
->>>>>>> Stashed changes
-            path="/roles"
-            element={<RolesPage />}
-        />
-
-        <Route
-            path="/permissions"
-            element={<PermissionsPage />}
-        />
-     </Route>
-    </Route>
-
-
-    {/* DIRECTOR */}
-    <Route element={<DirectorLayout />}>
-
-        <Route
-            path="/director"
-            element={<DirectorDashboardPage />}
-        />
-
-    </Route>
-
-
-    {/* MANAGER */}
-    <Route element={<ManagerLayout />}>
-
-        <Route
-            path="/manager"
-            element={<ManagerDashboardPage />}
-        />
-        <Route path="/kanban"  element={<ManagerKanbanPage />}/>
-        <Route path="/messages" element={<CommunicationPage />} />
-    </Route>
-
-
-    {/* EMPLOYEE */}
-    <Route element={<EmployeeLayout />}>
-
-        <Route
-            path="/employee"
-            element={<EmployeeDashboardPage />}
-        />
-
-    </Route>
-
-</Route>
-
-        {/* Route inconnue */}
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route
-        path="/reset-password"
-        element={<ResetPasswordPage />}
-       />
-      <Route path="/users" element={<UsersPage />} />
-
       </Routes>
     </BrowserRouter>
   );

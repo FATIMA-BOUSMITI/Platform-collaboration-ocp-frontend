@@ -1,13 +1,9 @@
-
-<<<<<<< Updated upstream
-=======
 export interface Role {
   id: string;
   name: string;
   description: string;
 }
 
->>>>>>> Stashed changes
 export interface UserRole {
   id: string;
   firstName: string;
@@ -18,19 +14,13 @@ export interface UserRole {
   enabled: boolean;
 }
 
-<<<<<<< Updated upstream
-export interface Roles{
+export interface Roles {
   id: string;
   name: string;
   description: string;
 }
-=======
-export interface Roles extends Role {}
->>>>>>> Stashed changes
 
 export interface RoleCount {
-
   roleName: string;
   userCount: number;
-
 }

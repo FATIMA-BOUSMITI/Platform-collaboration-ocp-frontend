@@ -20,7 +20,20 @@ interface AuthState {
 }
 
 function decodeUserFromToken(token: string): DecodedUser {
-  return JSON.parse(atob(token.split(".")[1]));
+  const base64Payload = token.split(".")[1];
+  const normalized = base64Payload
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const padded = normalized.padEnd(
+    normalized.length + ((4 - (normalized.length % 4)) % 4),
+    "="
+  );
+
+  const decoded = atob(padded);
+  const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+  const text = new TextDecoder().decode(bytes);
+
+  return JSON.parse(text);
 }
 
 const storedToken = localStorage.getItem("accessToken");

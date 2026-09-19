@@ -21,16 +21,22 @@ export interface JwtPayload{
 }
 
 
-export interface UserProfile {
+export interface RoleRef {
+  id?: string;
+  name?: string;
+  description?: string;
+}
 
-     id: String;
-     email: String;
-     enabled: boolean;
-     accountLocked: boolean;
-     lastLogin: Date | null;
-     createdAt: Date;
-     roleNames: string[];
-     
+export interface UserProfile {
+  id?: string;
+  userId?: string;
+  email?: string;
+  enabled?: boolean;
+  accountLocked?: boolean;
+  lastLogin?: Date | null;
+  createdAt?: Date;
+  roleNames?: string[];
+  roles?: RoleRef[];
 }
 
 

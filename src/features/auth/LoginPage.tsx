@@ -2,14 +2,10 @@ import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../api/authApi.ts";
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import {jwtDecode} from "jwt-decode";
-import {getUserById} from "../../api/userApi.ts";
+import { jwtDecode } from "jwt-decode";
+import { getUserByAuthUserId } from "../../api/userApi.ts";
 
 import "./LoginPage.css";
 import { useAuthStore } from "./AuthStore.ts";
@@ -44,35 +40,39 @@ function LoginPage() {
       });
 
       if (response.accessToken) {
-        localStorage.setItem(
-          "accessToken",
-          response.accessToken
-        );
+        localStorage.setItem("accessToken", response.accessToken);
+
         const payload = jwtDecode(response.accessToken) as any;
-        //console.log("Decoded JWT Payload:", payload);
-        const user = await getUserById(payload.userId);
+        const user = await getUserByAuthUserId(payload.userId);
+        const roleName =
+          user.roles?.[0]?.name ??
+          user.roleNames?.[0] ??
+          "";
 
-        const role = user.roleNames[0];
+        const normalizedRole = String(roleName).trim().toUpperCase();
 
-      useAuthStore.getState().login(
-        response.accessToken,
-        response.refreshToken,
-        role
-       );
-
-        //console.log("Role :", role);
-        if (role === "ADMIN") {
-          navigate("/dashboard");
-         }
-        else if (role === "DIRECTOR") {
-         navigate("/director");
+        if (!normalizedRole) {
+          setError("Aucun rôle associé à ce compte.");
+          return;
         }
-        else if (role === "MANAGER") {
-         navigate("/manager");
-      }
-      else if (role === "EMPLOYEE") {
-        navigate("/employee");
-      }
+
+        useAuthStore.getState().login(
+          response.accessToken,
+          response.refreshToken,
+          normalizedRole
+        );
+
+        if (normalizedRole === "ADMIN") {
+          navigate("/dashboard");
+        } else if (normalizedRole === "DIRECTOR") {
+          navigate("/director");
+        } else if (normalizedRole === "MANAGER") {
+          navigate("/manager");
+        } else if (normalizedRole === "EMPLOYEE") {
+          navigate("/employee");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       setError(
