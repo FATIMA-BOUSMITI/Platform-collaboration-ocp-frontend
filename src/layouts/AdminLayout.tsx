@@ -4,6 +4,7 @@ import "./AdminLayout.css" ;
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import { useAuthStore } from "../features/auth/AuthStore";
 
 function AdminLayout() {
 
@@ -15,8 +16,7 @@ function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    useAuthStore.getState().logout();
 
     navigate("/");
   };

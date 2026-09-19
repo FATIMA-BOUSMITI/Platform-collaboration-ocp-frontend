@@ -6,7 +6,7 @@ import EmptyColumn from "./EmptyColumn";
 import type {
     KanbanTask,
     TaskStatus
-} from "../types/Kanban.Types";
+} from "../types/kanban.types";
 
 import "../styles/KanbanColumn.css";
 
@@ -35,6 +35,7 @@ interface Props {
         taskId: string,
         status: TaskStatus
     ) => void;
+    canManageTasks?: boolean;
 }
 
 
@@ -52,7 +53,8 @@ export default function KanbanColumn({
 
     onDeleteTask,
 
-    onMoveTask
+    onMoveTask,
+    canManageTasks = true
 
 }: Props) {
 
@@ -119,7 +121,7 @@ export default function KanbanColumn({
                 </div>
 
 
-                <button
+                {canManageTasks && <button
 
                     type="button"
 
@@ -132,7 +134,7 @@ export default function KanbanColumn({
                 >
                     <FiPlus />
 
-                </button>
+                </button>}
 
             </div>
 
@@ -156,6 +158,7 @@ export default function KanbanColumn({
                             onEdit={onEditTask}
 
                             onDelete={onDeleteTask}
+                            canManageTasks={canManageTasks}
 
                         />
 

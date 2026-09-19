@@ -23,13 +23,16 @@ export interface JwtPayload{
 
 export interface UserProfile {
 
-     id: String;
-     email: String;
+    id: string;
+    email: string;
      enabled: boolean;
      accountLocked: boolean;
      lastLogin: Date | null;
      createdAt: Date;
-     roleNames: string[];
+    roleNames?: string[] | string;
+    roleName?: string;
+    role?: string;
+    roles?: string[] | string;
      
 }
 

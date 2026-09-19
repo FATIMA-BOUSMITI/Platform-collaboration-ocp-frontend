@@ -6,9 +6,31 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import {jwtDecode} from "jwt-decode";
 import {getUserById} from "../../api/userApi.ts";
+import type { JwtPayload } from "../../types/auth.types";
 
 import "./LoginPage.css";
 import { useAuthStore } from "./AuthStore.ts";
+
+const rolePriority = ["ADMIN", "DIRECTOR", "MANAGER", "EMPLOYEE"] as const;
+
+function resolveRole(
+  roleNames: string[] | string | undefined,
+  ...fallbackRoles: Array<string[] | string | undefined>
+): string | null {
+  const roleValues = [roleNames, ...fallbackRoles].flatMap((roles) =>
+    roles === undefined ? [] : Array.isArray(roles) ? roles : [roles]
+  );
+
+  if (!roleValues.length) {
+    return null;
+  }
+
+  const normalizedRoles = roleValues.map((roleName) =>
+    roleName.trim().toUpperCase().replace(/^ROLE_/, "")
+  );
+
+  return rolePriority.find((role) => normalizedRoles.includes(role)) ?? null;
+}
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -33,6 +55,7 @@ function LoginPage() {
 
     try {
       setError("");
+      useAuthStore.getState().logout();
 
       const response = await login({
         email,
@@ -40,15 +63,23 @@ function LoginPage() {
       });
 
       if (response.accessToken) {
-        localStorage.setItem(
-          "accessToken",
-          response.accessToken
-        );
-        const payload = jwtDecode(response.accessToken) as any;
-        //console.log("Decoded JWT Payload:", payload);
+        const payload = jwtDecode<JwtPayload>(response.accessToken);
+        if (!payload.userId) {
+          throw new Error("Le token ne contient pas d'identifiant utilisateur.");
+        }
+
+        localStorage.setItem("accessToken", response.accessToken);
         const user = await getUserById(payload.userId);
 
-        const role = user.roleNames[0];
+        const role = resolveRole(
+          user.roleNames,
+          user.roleName,
+          user.role,
+          user.roles
+        );
+        if (!role) {
+          throw new Error("Aucun rôle n'est associé à cet utilisateur.");
+        }
 
       useAuthStore.getState().login(
         response.accessToken,
@@ -70,9 +101,12 @@ function LoginPage() {
         navigate("/employee");
       }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(
-        error.response?.data?.message ||
+        (typeof error === "object" && error !== null && "response" in error
+          ? ((error.response as { data?: { message?: string } }).data?.message)
+          : undefined) ||
+          (error instanceof Error ? error.message : undefined) ||
           "Une erreur est survenue. Veuillez réessayer."
       );
     }

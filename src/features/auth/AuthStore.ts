@@ -20,17 +20,37 @@ interface AuthState {
 }
 
 function decodeUserFromToken(token: string): DecodedUser {
-  return JSON.parse(atob(token.split(".")[1]));
+  const payload = token.split(".")[1];
+  if (!payload) throw new Error("Invalid access token");
+  return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
 }
 
 const storedToken = localStorage.getItem("accessToken");
+let storedUser: DecodedUser | null = null;
+
+if (storedToken) {
+  try {
+    const decodedUser = decodeUserFromToken(storedToken);
+    if (decodedUser.exp * 1000 > Date.now()) {
+      storedUser = decodedUser;
+    } else {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("role");
+    }
+  } catch {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("role");
+  }
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: storedToken,
+  accessToken: storedUser ? storedToken : null,
   refreshToken: localStorage.getItem("refreshToken"),
   role: localStorage.getItem("role"),
-  isAuthenticated: !!storedToken,
-  user: storedToken ? decodeUserFromToken(storedToken) : null,
+  isAuthenticated: !!storedUser,
+  user: storedUser,
 
   login: (access, refresh, role) => {
     localStorage.setItem("accessToken", access);

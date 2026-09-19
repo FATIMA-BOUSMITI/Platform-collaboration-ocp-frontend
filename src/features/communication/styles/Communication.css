@@ -506,3 +506,12 @@
     max-width: 80%;
   }
 }
+
+.communication-error {
+  margin: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff0f0;
+  color: #b42318;
+  font-size: 13px;
+}

@@ -12,6 +12,7 @@ const POLL_INTERVAL_MS = 4000;
 export default function ChatWindow({ conversation, currentUserId }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+  const [error, setError] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,8 +22,8 @@ export default function ChatWindow({ conversation, currentUserId }: ChatWindowPr
       try {
         const data = await getMessages(conversation.id);
         if (isMounted) setMessages(data);
-      } catch (err) {
-        console.error("Erreur lors de la récupération des messages :", err);
+      } catch {
+        if (isMounted) setError("Impossible de charger les messages.");
       }
     }
 
@@ -50,8 +51,9 @@ export default function ChatWindow({ conversation, currentUserId }: ChatWindowPr
       });
       setMessages((prev) => [...prev, newMessage]);
       setDraft("");
-    } catch (err) {
-      console.error("Erreur lors de l'envoi du message :", err);
+      setError("");
+    } catch {
+      setError("Impossible d'envoyer le message.");
     }
   }
 
@@ -66,6 +68,7 @@ export default function ChatWindow({ conversation, currentUserId }: ChatWindowPr
       </div>
 
       <div className="chat-messages">
+        {error && <div className="communication-error">{error}</div>}
         {messages.map((msg) => (
           <div
             key={msg.id}

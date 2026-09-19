@@ -13,7 +13,7 @@ import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 
 import UsersPage from "../features/users/UsersPage";
 import DirectorLayout from "../layouts/DirectorLayout";
-import DirectorDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
+import DirectorDashboardPage from "../features/director/pages/DirectorDashboardPage";
 import ManagerDashboardPage from "../features/manager/pages/ManagerDashboardPage";
 import EmployeeDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
 import ManagerLayout from "../layouts/ManagerLayout";
@@ -21,6 +21,10 @@ import EmployeeLayout from "../layouts/EmployeeLayout";
 import RoleRoute from "./RoleRoute";
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
+import DocumentsPage from "../features/documents/pages/DocumentsPage";
+import DocumentsLayout from "../layouts/DocumentsLayout";
+import CommunicationLayout from "../layouts/CommunicationLayout";
+import ProjectsLayout from "../layouts/ProjectsLayout";
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -65,6 +69,7 @@ function AppRouter() {
 
 
     {/* DIRECTOR */}
+    <Route element={<RoleRoute allowedRoles={["DIRECTOR"]} />}>
     <Route element={<DirectorLayout />}>
 
         <Route
@@ -73,21 +78,24 @@ function AppRouter() {
         />
 
     </Route>
+    </Route>
 
 
     {/* MANAGER */}
+    <Route element={<RoleRoute allowedRoles={["MANAGER"]} />}>
     <Route element={<ManagerLayout />}>
 
         <Route
             path="/manager"
             element={<ManagerDashboardPage />}
         />
-        <Route path="/kanban"  element={<ManagerKanbanPage />}/>
-        <Route path="/messages" element={<CommunicationPage />} />
+
+    </Route>
     </Route>
 
 
     {/* EMPLOYEE */}
+    <Route element={<RoleRoute allowedRoles={["EMPLOYEE"]} />}>
     <Route element={<EmployeeLayout />}>
 
         <Route
@@ -96,6 +104,20 @@ function AppRouter() {
         />
 
     </Route>
+    </Route>
+
+                                    <Route element={<RoleRoute allowedRoles={["DIRECTOR", "MANAGER", "EMPLOYEE"]} />}>
+                                        <Route element={<ProjectsLayout />}>
+                                            <Route path="/kanban" element={<ManagerKanbanPage />} />
+                                        </Route>
+                                    </Route>
+
+                <Route element={<DocumentsLayout />}>
+                    <Route path="/documents" element={<DocumentsPage />} />
+                </Route>
+                <Route element={<CommunicationLayout />}>
+                    <Route path="/messages" element={<CommunicationPage />} />
+                </Route>
 
 </Route>
 
@@ -105,8 +127,6 @@ function AppRouter() {
         path="/reset-password"
         element={<ResetPasswordPage />}
        />
-      <Route path="/users" element={<UsersPage />} />
-
       </Routes>
     </BrowserRouter>
   );

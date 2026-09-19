@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import "./AdminLayout.css" ;
 import Header from "../components/Header";
 import Employeesidebar from "../components/Employeesidebar";
+import { useAuthStore } from "../features/auth/AuthStore";
 
 export default function EmployeeLayout() {
 const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -14,8 +15,7 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    useAuthStore.getState().logout();
 
     navigate("/");
   };

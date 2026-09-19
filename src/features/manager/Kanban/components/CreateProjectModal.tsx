@@ -9,9 +9,7 @@ interface Props {
 
     onClose: () => void;
 
-    onCreate: (
-        project: Project
-    ) => void;
+    onCreate: (project: Project) => void | Promise<void>;
 }
 
 export default function CreateProjectModal({

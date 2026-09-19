@@ -5,7 +5,7 @@ import {
 
 import type {
     KanbanTask
-} from "../types/Kanban.Types";
+} from "../types/kanban.types";
 
 import "../styles/KanbanTaskCard.css";
 
@@ -21,6 +21,7 @@ interface Props {
     onDelete: (
         taskId: string
     ) => void;
+    canManageTasks?: boolean;
 }
 
 
@@ -30,7 +31,8 @@ export default function KanbanTaskCard({
 
     onEdit,
 
-    onDelete
+    onDelete,
+    canManageTasks = true
 
 }: Props) {
 
@@ -66,7 +68,7 @@ export default function KanbanTaskCard({
 
             className="kanban-task-card"
 
-            draggable
+            draggable={canManageTasks}
 
             onDragStart={handleDragStart}
         >
@@ -86,7 +88,7 @@ export default function KanbanTaskCard({
                 </span>
 
 
-                <div className="task-menu">
+                {canManageTasks && <div className="task-menu">
 
                     <button
                         type="button"
@@ -118,7 +120,7 @@ export default function KanbanTaskCard({
 
                     </div>
 
-                </div>
+                </div>}
 
             </div>
 

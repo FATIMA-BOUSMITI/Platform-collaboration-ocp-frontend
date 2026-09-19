@@ -20,6 +20,8 @@ import { FiSettings } from "react-icons/fi";
 import { FiBell } from "react-icons/fi";
 import { FiDatabase } from "react-icons/fi";
 import { FiShieldOff } from "react-icons/fi";
+import { FaRegFolder } from "react-icons/fa6";
+import { FaRegMessage } from "react-icons/fa6";
 
 
 interface SidebarProps {
@@ -81,6 +83,19 @@ function Sidebar({ isOpen, onClose,onLogout }: SidebarProps) {
       
 
       <SidebarSection title="ORGANISATION" />
+
+      <SidebarItem
+        to="/documents"
+        icon={<FaRegFolder />}
+        label="Documents"
+        onClick={onClose}
+      />
+      <SidebarItem
+        to="/messages"
+        icon={<FaRegMessage />}
+        label="Messagerie"
+        onClick={onClose}
+      />
 
       <SidebarItem
         to="/departments"

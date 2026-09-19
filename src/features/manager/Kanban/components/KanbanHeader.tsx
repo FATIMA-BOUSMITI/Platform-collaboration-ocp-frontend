@@ -9,12 +9,14 @@ interface Props {
     ) => void;
 
     onCreateProject: () => void;
+    canManageProjects?: boolean;
 }
 
 export default function KanbanHeader({
     view,
     onViewChange,
-    onCreateProject
+    onCreateProject,
+    canManageProjects = true
 }: Props) {
 
     return (
@@ -72,13 +74,13 @@ export default function KanbanHeader({
 
                 {/* NOUVEAU PROJET */}
 
-                <button
+                {canManageProjects && <button
                     className="new-project-button"
                     onClick={onCreateProject}
                 >
                     <FiPlus />
                     Nouveau projet
-                </button>
+                </button>}
 
             </div>
 
