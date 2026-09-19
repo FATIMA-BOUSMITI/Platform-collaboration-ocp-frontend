@@ -17,7 +17,7 @@ import DirectorDashboardPage from "../features/director/pages/DirectorDashboardP
 import ManagerDashboardPage from "../features/manager/pages/ManagerDashboardPage";
 import EmployeeDashboardPage from "../features/employee/pages/EmployeeDashboardPage";
 import ManagerLayout from "../layouts/ManagerLayout";
-import EmployeeLayout from "../layouts/EmployeeLayout"; 
+import EmployeeLayout from "../layouts/EmployeeLayout";
 import RoleRoute from "./RoleRoute";
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
@@ -25,21 +25,45 @@ import DocumentsPage from "../features/documents/pages/DocumentsPage";
 import DocumentsLayout from "../layouts/DocumentsLayout";
 import CommunicationLayout from "../layouts/CommunicationLayout";
 import ProjectsLayout from "../layouts/ProjectsLayout";
+import DepartmentsPage from "../features/departments/DepartmentsPage";
+import TeamsPage from "../features/teams/TeamsPage";
+import ProfilePage from "../features/profile/ProfilePage";
+
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Routes publiques */}
-      
         <Route path="/" element={<LoginPage />} />
-        <Route
-          path="/forgot-password"
-          element={<ForgotPasswordPage />}
-        />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Routes protégées */}
         <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/dashboard" element={<AdminDashboardPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/departments" element={<DepartmentsPage />} />
+              <Route path="/teams" element={<TeamsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/roles" element={<RolesPage />} />
+              <Route path="/permissions" element={<PermissionsPage />} />
+            </Route>
+          </Route>
+
+          <Route element={<DirectorLayout />}>
+            <Route path="/director" element={<DirectorDashboardPage />} />
+          </Route>
+
+          <Route element={<ManagerLayout />}>
+            <Route path="/manager" element={<ManagerDashboardPage />} />
+            <Route path="/kanban" element={<ManagerKanbanPage />} />
+            <Route path="/messages" element={<CommunicationPage />} />
+          </Route>
+
+          <Route element={<EmployeeLayout />}>
+            <Route path="/employee" element={<EmployeeDashboardPage />} />
+          </Route>
+        </Route>
 
        {/* ADMIN */}
        <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
@@ -127,6 +151,7 @@ function AppRouter() {
         path="/reset-password"
         element={<ResetPasswordPage />}
        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

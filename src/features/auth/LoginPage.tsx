@@ -7,6 +7,8 @@ import Button from "../../components/Button";
 import {jwtDecode} from "jwt-decode";
 import {getUserById} from "../../api/userApi.ts";
 import type { JwtPayload } from "../../types/auth.types";
+import { jwtDecode } from "jwt-decode";
+import { getUserByAuthUserId } from "../../api/userApi.ts";
 
 import "./LoginPage.css";
 import { useAuthStore } from "./AuthStore.ts";
@@ -79,27 +81,39 @@ function LoginPage() {
         );
         if (!role) {
           throw new Error("Aucun rôle n'est associé à cet utilisateur.");
+        localStorage.setItem("accessToken", response.accessToken);
+
+        const payload = jwtDecode(response.accessToken) as any;
+        const user = await getUserByAuthUserId(payload.userId);
+        const roleName =
+          user.roles?.[0]?.name ??
+          user.roleNames?.[0] ??
+          "";
+
+        const normalizedRole = String(roleName).trim().toUpperCase();
+
+        if (!normalizedRole) {
+          setError("Aucun rôle associé à ce compte.");
+          return;
         }
 
-      useAuthStore.getState().login(
-        response.accessToken,
-        response.refreshToken,
-        role
-       );
+        useAuthStore.getState().login(
+          response.accessToken,
+          response.refreshToken,
+          normalizedRole
+        );
 
-        //console.log("Role :", role);
-        if (role === "ADMIN") {
+        if (normalizedRole === "ADMIN") {
           navigate("/dashboard");
-         }
-        else if (role === "DIRECTOR") {
-         navigate("/director");
+        } else if (normalizedRole === "DIRECTOR") {
+          navigate("/director");
+        } else if (normalizedRole === "MANAGER") {
+          navigate("/manager");
+        } else if (normalizedRole === "EMPLOYEE") {
+          navigate("/employee");
+        } else {
+          navigate("/dashboard");
         }
-        else if (role === "MANAGER") {
-         navigate("/manager");
-      }
-      else if (role === "EMPLOYEE") {
-        navigate("/employee");
-      }
       }
     } catch (error: unknown) {
       setError(

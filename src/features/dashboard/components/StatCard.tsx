@@ -6,7 +6,6 @@ interface StatCardProps {
 
     value: string;
 
-
     trendColor: string;
 
     description: string;
@@ -22,7 +21,6 @@ function StatCard({
     title,
 
     value,
-
 
     trendColor,
 
@@ -69,7 +67,12 @@ function StatCard({
 
             <div className="stat-bottom">
 
-               
+                <span
+                    className="trend-indicator"
+                    style={{ backgroundColor: trendColor, color: "#fff" }}
+                >
+                    {trendColor ? "●" : ""}
+                </span>
 
                 <span className="description">
 

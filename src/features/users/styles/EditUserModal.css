@@ -1,0 +1,243 @@
+
+.edit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.edit-user-modal {
+  width: min(100%, 620px);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.edit-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid #edf1ef;
+}
+
+.edit-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.edit-header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-header-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #e8f7ee;
+  color: #126b38;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.edit-modal-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.edit-close-button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #53606b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.edit-user-form {
+  padding: 22px 24px 24px;
+}
+
+.form-section {
+  border: 1px solid #edf1ef;
+  border-radius: 12px;
+  padding: 16px 16px 4px;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.edit-form-group {
+  margin-bottom: 16px;
+}
+
+.edit-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.edit-form-group label span {
+  color: #dc2626;
+}
+
+.edit-form-group input,
+.edit-form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+  outline: none;
+}
+
+.edit-form-group input:focus,
+.edit-form-group select:focus {
+  border-color: #126b38;
+  box-shadow: 0 0 0 3px rgba(18, 107, 56, 0.08);
+}
+
+.edit-input-icon,
+.edit-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0 10px;
+  color: #6b7280;
+}
+
+.edit-input-icon input,
+.edit-select-wrapper select {
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.edit-input-icon input:focus,
+.edit-select-wrapper select:focus {
+  box-shadow: none;
+}
+
+.edit-form-error,
+.edit-info-message {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.edit-form-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.edit-info-message {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.edit-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.edit-cancel-button,
+.edit-save-button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-cancel-button {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.edit-save-button {
+  background: #126b38;
+  color: #fff;
+}
+
+.edit-save-button:disabled,
+.edit-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .edit-cancel-button,
+  .edit-save-button {
+    width: 100%;
+  }
+}
