@@ -20,8 +20,6 @@ export interface Roles {
   description: string;
 }
 
-export type Role = Roles;
-
 export interface RoleCount {
   roleName: string;
   userCount: number;
