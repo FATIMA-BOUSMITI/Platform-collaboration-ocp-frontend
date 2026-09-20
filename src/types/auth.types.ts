@@ -27,6 +27,17 @@ export interface RoleRef {
   description?: string;
 }
 
+    id: string;
+    email: string;
+     enabled: boolean;
+     accountLocked: boolean;
+     lastLogin: Date | null;
+     createdAt: Date;
+    roleNames?: string[] | string;
+    roleName?: string;
+    role?: string;
+    roles?: string[] | string;
+     
 export interface UserProfile {
   id?: string;
   userId?: string;

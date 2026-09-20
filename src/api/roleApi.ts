@@ -17,6 +17,24 @@ export async function getRoles(): Promise<Roles[]> {
   return response.data;
 }
 
+export interface CreateRoleRequest {
+    name: string;
+    description: string;
+}
+
+export async function createRole(request: CreateRoleRequest): Promise<Roles> {
+    const response = await axiosClient.post<Roles>("/roles", request);
+    return response.data;
+}
+
+export async function getRoleById(roleId: string): Promise<Roles> {
+    const response = await axiosClient.get<Roles>(`/roles/${roleId}`);
+    return response.data;
+}
+
+export async function getUsersWithRoles() {
+    const response = await axiosClient.get<UserRole[]>("/users");
+    return response.data;
 
 // ==================== GET USERS WITH ROLES ====================
 

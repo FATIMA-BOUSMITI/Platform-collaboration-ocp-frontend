@@ -21,6 +21,10 @@ import EmployeeLayout from "../layouts/EmployeeLayout";
 import RoleRoute from "./RoleRoute";
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
+import DocumentsPage from "../features/documents/pages/DocumentsPage";
+import DocumentsLayout from "../layouts/DocumentsLayout";
+import CommunicationLayout from "../layouts/CommunicationLayout";
+import ProjectsLayout from "../layouts/ProjectsLayout";
 import DepartmentsPage from "../features/departments/DepartmentsPage";
 import TeamsPage from "../features/teams/TeamsPage";
 import ProfilePage from "../features/profile/ProfilePage";
@@ -61,6 +65,92 @@ function AppRouter() {
           </Route>
         </Route>
 
+       {/* ADMIN */}
+       <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+       <Route element={<AdminLayout />}>
+
+        <Route
+            path="/dashboard"
+            element={<AdminDashboardPage />}
+        />
+
+        <Route
+            path="/users"
+            element={<UsersPage />}
+        />
+
+        <Route
+            path="/roles"
+            element={<RolesPage />}
+        />
+
+        <Route
+            path="/permissions"
+            element={<PermissionsPage />}
+        />
+     </Route>
+    </Route>
+
+
+    {/* DIRECTOR */}
+    <Route element={<RoleRoute allowedRoles={["DIRECTOR"]} />}>
+    <Route element={<DirectorLayout />}>
+
+        <Route
+            path="/director"
+            element={<DirectorDashboardPage />}
+        />
+
+    </Route>
+    </Route>
+
+
+    {/* MANAGER */}
+    <Route element={<RoleRoute allowedRoles={["MANAGER"]} />}>
+    <Route element={<ManagerLayout />}>
+
+        <Route
+            path="/manager"
+            element={<ManagerDashboardPage />}
+        />
+
+    </Route>
+    </Route>
+
+
+    {/* EMPLOYEE */}
+    <Route element={<RoleRoute allowedRoles={["EMPLOYEE"]} />}>
+    <Route element={<EmployeeLayout />}>
+
+        <Route
+            path="/employee"
+            element={<EmployeeDashboardPage />}
+        />
+
+    </Route>
+    </Route>
+
+                                    <Route element={<RoleRoute allowedRoles={["DIRECTOR", "MANAGER", "EMPLOYEE"]} />}>
+                                        <Route element={<ProjectsLayout />}>
+                                            <Route path="/kanban" element={<ManagerKanbanPage />} />
+                                        </Route>
+                                    </Route>
+
+                <Route element={<DocumentsLayout />}>
+                    <Route path="/documents" element={<DocumentsPage />} />
+                </Route>
+                <Route element={<CommunicationLayout />}>
+                    <Route path="/messages" element={<CommunicationPage />} />
+                </Route>
+
+</Route>
+
+        {/* Route inconnue */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+        path="/reset-password"
+        element={<ResetPasswordPage />}
+       />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import "./AdminLayout.css" ;
 import Header from "../components/Header";
 import Managersidebar from "../components/Managersidebar";
+import { useAuthStore } from "../features/auth/AuthStore";
 
 export default function ManagerLayout() {
 
@@ -15,8 +16,7 @@ export default function ManagerLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    useAuthStore.getState().logout();
 
     navigate("/");
   };

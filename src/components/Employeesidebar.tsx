@@ -70,6 +70,13 @@ function Employeesidebar({ isOpen, onClose,onLogout }: SidebarProps) {
       <SidebarSection title="MES TâCHES" />
 
       <SidebarItem
+        to="/kanban"
+        icon={<GoTasklist />}
+        label="Projets et tâches"
+        onClick={onClose}
+      />
+
+      <SidebarItem
         to="/Taches"
         icon={<GoTasklist />}
         label="A faire"

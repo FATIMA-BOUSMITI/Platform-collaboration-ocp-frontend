@@ -3,7 +3,7 @@ import KanbanColumn from "./KanbanColumn";
 import type {
     KanbanTask,
     TaskStatus
-} from "../types/Kanban.Types";
+} from "../types/kanban.types";
 
 import "../styles/KanbanBoard.css";
 
@@ -28,6 +28,7 @@ interface Props {
         taskId: string,
         status: TaskStatus
     ) => void;
+    canManageTasks?: boolean;
 }
 
 
@@ -61,7 +62,8 @@ export default function KanbanBoard({
 
     onDeleteTask,
 
-    onMoveTask
+    onMoveTask,
+    canManageTasks = true
 
 }: Props) {
 
@@ -95,6 +97,7 @@ export default function KanbanBoard({
                     onDeleteTask={onDeleteTask}
 
                     onMoveTask={onMoveTask}
+                    canManageTasks={canManageTasks}
 
                 />
 

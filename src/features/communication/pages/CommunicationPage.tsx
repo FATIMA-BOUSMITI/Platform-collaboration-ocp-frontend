@@ -1,5 +1,5 @@
 // features/communication/pages/CommunicationPage.tsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from '../../auth/AuthStore';
 import { getConversationsByUser, createConversation } from "../api/communicationApi";
 import type { Conversation } from "../types/communication.types";
@@ -13,24 +13,31 @@ export default function CommunicationPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const loadConversations = useCallback(async () => {
     if (!currentUser) return;
-
-    getConversationsByUser(currentUser.userId)
-      .then((data) => {
-        setConversations(data);
-        if (data.length > 0) setActiveConversationId(data[0].id);
-      })
-      .catch((err) => console.error("Erreur lors du chargement des conversations :", err));
+    try {
+      const data = await getConversationsByUser(currentUser.userId);
+      setConversations(data);
+      setActiveConversationId((activeId) => activeId && data.some((item) => item.id === activeId) ? activeId : data[0]?.id ?? null);
+      setError("");
+    } catch {
+      setError("Impossible de charger les conversations.");
+    }
   }, [currentUser]);
 
-  async function handleCreateChannel(name: string, _isPrivate: boolean) {
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadConversations(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadConversations]);
+
+  async function handleCreateChannel(name: string, isPrivate: boolean) {
     if (!currentUser) return;
 
     try {
       const newConversation = await createConversation({
-        type: "CHANNEL",
+        type: isPrivate ? "PRIVATE" : "CHANNEL",
         name,
         creatorId: currentUser.userId,
         memberIds: [],
@@ -38,8 +45,8 @@ export default function CommunicationPage() {
       setConversations((prev) => [...prev, newConversation]);
       setActiveConversationId(newConversation.id);
       setShowCreateModal(false);
-    } catch (err) {
-      console.error("Erreur lors de la création du canal :", err);
+    } catch {
+      setError("Impossible de créer la conversation.");
     }
   }
 
@@ -55,6 +62,8 @@ export default function CommunicationPage() {
         onSelectConversation={setActiveConversationId}
         onOpenCreateModal={() => setShowCreateModal(true)}
       />
+
+      {error && <div className="communication-error">{error}</div>}
 
       {activeConversation ? (
         <ChatWindow conversation={activeConversation} currentUserId={currentUser.userId} />

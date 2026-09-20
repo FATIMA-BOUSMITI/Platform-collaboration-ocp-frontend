@@ -34,3 +34,12 @@ export async function sendMessage(
   );
   return response.data;
 }
+
+export async function getConversation(conversationId: string): Promise<Conversation> {
+  const response = await axiosClient.get<Conversation>(`/conversations/${conversationId}`);
+  return response.data;
+}
+
+export async function addConversationMember(conversationId: string, userId: string): Promise<void> {
+  await axiosClient.post(`/conversations/${conversationId}/members/${userId}`);
+}

@@ -4,7 +4,7 @@ import type {
     KanbanTask,
     TaskPriority,
     TaskStatus
-} from "../types/Kanban.Types";
+} from "../types/kanban.types";
 
 import "../styles/TaskModal.css";
 

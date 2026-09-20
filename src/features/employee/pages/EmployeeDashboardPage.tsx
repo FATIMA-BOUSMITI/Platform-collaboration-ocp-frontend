@@ -15,7 +15,7 @@ import DashboardHeader from "../../dashboard/components/DashboardHeader";
 import StatsGrid from "../../dashboard/components/StatsGrid";
 
 import QuickActions from "../components/QuickActions";
- function ManagerDashboardPage() {
+ function EmployeeDashboardPage() {
 
     const [stat,setStat]=useState<UserStats>('' as unknown as UserStats);
 
@@ -37,7 +37,7 @@ import QuickActions from "../components/QuickActions";
 
         {
 
-            title:"Utilisateurs Actifs",
+            title:"Utilisateurs actifs",
 
             value:stat?.activeUsers,
 
@@ -55,7 +55,7 @@ import QuickActions from "../components/QuickActions";
 
         {
 
-            title:"Tentatives Échouées (24h)",
+            title:"Tentatives échouées (24h)",
 
             value:  stat?.totalFailedAttempts ,
 
@@ -73,7 +73,7 @@ import QuickActions from "../components/QuickActions";
 
         {
 
-            title:"locked accounts",
+            title:"Comptes verrouillés",
 
             value:stat?.lockedAccounts,
 
@@ -91,7 +91,7 @@ import QuickActions from "../components/QuickActions";
 
         {
 
-            title:"Sessions Actives",
+            title:"Sessions actives",
 
             value:stat?.totalUsers ,
 
@@ -114,8 +114,8 @@ import QuickActions from "../components/QuickActions";
         <div className="dashboard">
 
             <DashboardHeader
-                title="Tableau de bord"
-                subtitle="Vue d'ensemble de la plateforme d'authentification OCP."
+                title="Tableau de bord employee"
+                subtitle="Vue d'ensemble de votre activité sur la plateforme OCP."
             />
 
             <StatsGrid stats={stats}/>
@@ -131,4 +131,4 @@ import QuickActions from "../components/QuickActions";
 
 }
 
-export default ManagerDashboardPage;
+export default EmployeeDashboardPage;
