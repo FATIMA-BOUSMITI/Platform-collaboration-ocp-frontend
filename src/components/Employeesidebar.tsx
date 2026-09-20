@@ -77,9 +77,9 @@ function Employeesidebar({ isOpen, onClose,onLogout }: SidebarProps) {
       />
 
       <SidebarItem
-        to="/Taches"
+        to="/tasks"
         icon={<GoTasklist />}
-        label="A faire"
+        label="À faire"
         onClick={onClose}
       />
       <SidebarSection title="RESSOURCES" />

@@ -1,8 +1,10 @@
 // features/communication/pages/CommunicationPage.tsx
 import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from '../../auth/AuthStore';
-import { getConversationsByUser, createConversation } from "../api/communicationApi";
-import type { Conversation } from "../types/communication.types";
+import { getConversationsByUser, createConversation, deleteConversation } from "../api/communicationApi";
+import { getUsers } from "../../../api/userApi";
+import type { Conversation, CreateConversationOptions } from "../types/communication.types";
+import type { User } from "../../../types/User.type";
 import ConversationSidebar from "../components/ConversationSidebar";
 import ChatWindow from "../components/ChatWindow";
 import CreateChannelModal from "../components/CreateChannelModal";
@@ -13,6 +15,7 @@ export default function CommunicationPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
 
   const loadConversations = useCallback(async () => {
@@ -32,21 +35,39 @@ export default function CommunicationPage() {
     return () => window.clearTimeout(timer);
   }, [loadConversations]);
 
-  async function handleCreateChannel(name: string, isPrivate: boolean) {
+  useEffect(() => {
+    void getUsers().then(setUsers).catch(() => setUsers([]));
+  }, []);
+
+  async function handleCreateConversation(options: CreateConversationOptions) {
     if (!currentUser) return;
 
     try {
       const newConversation = await createConversation({
-        type: isPrivate ? "PRIVATE" : "CHANNEL",
-        name,
+        type: options.type,
+        name: options.name,
         creatorId: currentUser.userId,
-        memberIds: [],
+        memberIds: options.memberIds,
       });
       setConversations((prev) => [...prev, newConversation]);
       setActiveConversationId(newConversation.id);
       setShowCreateModal(false);
     } catch {
       setError("Impossible de créer la conversation.");
+    }
+  }
+
+  async function handleDeleteConversation(conversationId: string) {
+    const confirmed = window.confirm("Supprimer cette conversation ?");
+    if (!confirmed) return;
+
+    try {
+      await deleteConversation(conversationId);
+      setConversations((prev) => prev.filter((conversation) => conversation.id !== conversationId));
+      setActiveConversationId((prev) => prev && prev !== conversationId ? prev : null);
+      setError("");
+    } catch {
+      setError("Impossible de supprimer la conversation.");
     }
   }
 
@@ -60,6 +81,7 @@ export default function CommunicationPage() {
         conversations={conversations}
         activeConversationId={activeConversationId}
         onSelectConversation={setActiveConversationId}
+        onDeleteConversation={handleDeleteConversation}
         onOpenCreateModal={() => setShowCreateModal(true)}
       />
 
@@ -74,7 +96,9 @@ export default function CommunicationPage() {
       {showCreateModal && (
         <CreateChannelModal
           onClose={() => setShowCreateModal(false)}
-          onCreate={handleCreateChannel}
+          users={users}
+          currentUserId={currentUser.userId}
+          onCreate={handleCreateConversation}
         />
       )}
     </div>

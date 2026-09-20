@@ -23,7 +23,6 @@ function StatCard({
     value,
 
     trendColor,
-
     description,
 
     icon,

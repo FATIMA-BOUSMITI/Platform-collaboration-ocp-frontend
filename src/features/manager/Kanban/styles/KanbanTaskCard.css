@@ -200,27 +200,36 @@
 }
 
 
-.assignee {
-
-    width: 30px;
-
-    height: 30px;
-
-    border-radius: 50%;
-
-    background: #e6efff;
-
-    color: #2f65b0;
-
-    display: flex;
-
+.assignee-badge {
+    display: inline-flex;
     align-items: center;
+    gap: 8px;
+    padding: 4px 9px 4px 4px;
+    background: #edf7f1;
+    border-radius: 999px;
+    max-width: 170px;
+}
 
+.assignee-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0a7d4d, #42a36d);
+    color: white;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
 
-    font-size: 12px;
-
-    font-weight: 500;
+.assignee-label {
+    font-size: 11px;
+    color: #2f4b42;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 

@@ -43,3 +43,7 @@ export async function getConversation(conversationId: string): Promise<Conversat
 export async function addConversationMember(conversationId: string, userId: string): Promise<void> {
   await axiosClient.post(`/conversations/${conversationId}/members/${userId}`);
 }
+
+export async function deleteConversation(conversationId: string): Promise<void> {
+  await axiosClient.delete(`/conversations/${conversationId}`);
+}

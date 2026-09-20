@@ -9,11 +9,18 @@ import type {
 import "../styles/TaskModal.css";
 
 
+interface AssigneeOption {
+    id: string;
+    label: string;
+    email: string;
+}
+
 interface Props {
 
     task: KanbanTask | null;
 
     status: TaskStatus;
+    assigneeOptions?: AssigneeOption[];
 
     onClose: () => void;
 
@@ -35,6 +42,7 @@ export default function TaskModal({
     task,
 
     status,
+    assigneeOptions = [],
 
     onClose,
 
@@ -55,7 +63,7 @@ export default function TaskModal({
         useState<TaskPriority>("MEDIUM");
 
     const [assignee, setAssignee] =
-        useState("YE");
+        useState("");
 
 
     useEffect(() => {
@@ -70,7 +78,7 @@ export default function TaskModal({
 
             setPriority(task.priority);
 
-            setAssignee(task.assignee);
+            setAssignee(task.assignee ?? "");
 
         } else {
 
@@ -80,7 +88,7 @@ export default function TaskModal({
 
             setPriority("MEDIUM");
 
-            setAssignee("YE");
+            setAssignee("");
 
         }
 
@@ -305,19 +313,12 @@ export default function TaskModal({
                                 }
 
                             >
-
-                                <option value="YE">
-                                    YE
-                                </option>
-
-                                <option value="KT">
-                                    KT
-                                </option>
-
-                                <option value="AD">
-                                    AD
-                                </option>
-
+                                <option value="">Non assignée</option>
+                                {assigneeOptions.map((option) => (
+                                    <option key={option.id} value={option.id}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </select>
 
                         </div>

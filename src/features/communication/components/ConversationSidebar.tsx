@@ -5,6 +5,7 @@ interface ConversationSidebarProps {
   conversations: Conversation[];
   activeConversationId: string | null;
   onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
   onOpenCreateModal: () => void;
 }
 
@@ -12,6 +13,7 @@ export default function ConversationSidebar({
   conversations,
   activeConversationId,
   onSelectConversation,
+  onDeleteConversation,
   onOpenCreateModal,
 }: ConversationSidebarProps) {
   const [search, setSearch] = useState("");
@@ -42,13 +44,25 @@ export default function ConversationSidebar({
           <button onClick={onOpenCreateModal}>+</button>
         </div>
         {filteredChannels.map((conv) => (
-          <button
-            key={conv.id}
-            className={`conversation-item ${conv.id === activeConversationId ? "active" : ""}`}
-            onClick={() => onSelectConversation(conv.id)}
-          >
-            # {conv.name}
-          </button>
+          <div key={conv.id} className={`conversation-item-wrap ${conv.id === activeConversationId ? "active" : ""}`}>
+            <button
+              className={`conversation-item ${conv.id === activeConversationId ? "active" : ""}`}
+              onClick={() => onSelectConversation(conv.id)}
+            >
+              # {conv.name}
+            </button>
+            <button
+              type="button"
+              className="conversation-delete-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteConversation(conv.id);
+              }}
+              aria-label={`Supprimer ${conv.name}`}
+            >
+              ✕
+            </button>
+          </div>
         ))}
       </div>
 
@@ -58,13 +72,25 @@ export default function ConversationSidebar({
           <button onClick={onOpenCreateModal}>+</button>
         </div>
         {directMessages.map((conv) => (
-          <button
-            key={conv.id}
-            className={`conversation-item ${conv.id === activeConversationId ? "active" : ""}`}
-            onClick={() => onSelectConversation(conv.id)}
-          >
-            {conv.name}
-          </button>
+          <div key={conv.id} className={`conversation-item-wrap ${conv.id === activeConversationId ? "active" : ""}`}>
+            <button
+              className={`conversation-item ${conv.id === activeConversationId ? "active" : ""}`}
+              onClick={() => onSelectConversation(conv.id)}
+            >
+              {conv.name}
+            </button>
+            <button
+              type="button"
+              className="conversation-delete-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteConversation(conv.id);
+              }}
+              aria-label={`Supprimer ${conv.name}`}
+            >
+              ✕
+            </button>
+          </div>
         ))}
       </div>
     </aside>

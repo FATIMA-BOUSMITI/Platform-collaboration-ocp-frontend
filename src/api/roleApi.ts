@@ -32,10 +32,6 @@ export async function getRoleById(roleId: string): Promise<Roles> {
     return response.data;
 }
 
-export async function getUsersWithRoles() {
-    const response = await axiosClient.get<UserRole[]>("/users");
-    return response.data;
-
 // ==================== GET USERS WITH ROLES ====================
 
 export async function getUsersWithRoles(): Promise<UserRole[]> {

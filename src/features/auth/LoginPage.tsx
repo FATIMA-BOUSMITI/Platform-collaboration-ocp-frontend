@@ -4,11 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../../api/authApi.ts";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import {jwtDecode} from "jwt-decode";
-import {getUserById} from "../../api/userApi.ts";
-import type { JwtPayload } from "../../types/auth.types";
 import { jwtDecode } from "jwt-decode";
-import { getUserByAuthUserId } from "../../api/userApi.ts";
+import { getUserById } from "../../api/userApi.ts";
+import type { JwtPayload } from "../../types/auth.types";
 
 import "./LoginPage.css";
 import { useAuthStore } from "./AuthStore.ts";
@@ -77,39 +75,27 @@ function LoginPage() {
           user.roleNames,
           user.roleName,
           user.role,
-          user.roles
+          Array.isArray(user.roles)
+            ? user.roles.map((item) => typeof item === "string" ? item : item.name ?? "")
+            : user.roles
         );
         if (!role) {
           throw new Error("Aucun rôle n'est associé à cet utilisateur.");
-        localStorage.setItem("accessToken", response.accessToken);
-
-        const payload = jwtDecode(response.accessToken) as any;
-        const user = await getUserByAuthUserId(payload.userId);
-        const roleName =
-          user.roles?.[0]?.name ??
-          user.roleNames?.[0] ??
-          "";
-
-        const normalizedRole = String(roleName).trim().toUpperCase();
-
-        if (!normalizedRole) {
-          setError("Aucun rôle associé à ce compte.");
-          return;
         }
 
         useAuthStore.getState().login(
           response.accessToken,
           response.refreshToken,
-          normalizedRole
+          role
         );
 
-        if (normalizedRole === "ADMIN") {
+        if (role === "ADMIN") {
           navigate("/dashboard");
-        } else if (normalizedRole === "DIRECTOR") {
+        } else if (role === "DIRECTOR") {
           navigate("/director");
-        } else if (normalizedRole === "MANAGER") {
+        } else if (role === "MANAGER") {
           navigate("/manager");
-        } else if (normalizedRole === "EMPLOYEE") {
+        } else if (role === "EMPLOYEE") {
           navigate("/employee");
         } else {
           navigate("/dashboard");

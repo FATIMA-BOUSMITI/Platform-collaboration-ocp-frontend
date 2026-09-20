@@ -25,6 +25,12 @@ export interface CreateConversationRequest {
   memberIds: string[];
 }
 
+export interface CreateConversationOptions {
+  type: "PRIVATE" | "CHANNEL";
+  name: string;
+  memberIds: string[];
+}
+
 export interface SendMessageRequest {
   senderId: string;
   content: string;
