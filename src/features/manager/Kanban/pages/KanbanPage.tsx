@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../../auth/AuthStore";
 
 import KanbanHeader from "../components/KanbanHeader";
@@ -16,22 +16,33 @@ import "../styles/KanbanPage.css";
 import ProjectCard from "../components/ProjectCard";
 import { createProject, getProjects } from "../../../../api/projectApi";
 import { createTask, getProjectTasks, updateTask, updateTaskStatus, type TaskResponse } from "../../../../api/taskApi";
+import { getUsers } from "../../../../api/userApi";
+import { getInitials } from "../../../../utils/person";
 
-function mapTask(task: TaskResponse): KanbanTask {
+function mapTask(task: TaskResponse, userMap: Map<string, { fullName: string; email: string }>): KanbanTask {
+    const assigneeId = task.assigneeId ?? "";
+    const user = assigneeId ? userMap.get(String(assigneeId)) : undefined;
+    const assigneeLabel = user?.fullName || user?.email || "Non assignée";
+    const initials = user ? getInitials(user.fullName || user.email) : "NA";
+
     return {
         id: task.id,
         title: task.title,
         description: task.description,
         priority: task.priority === "CRITICAL" ? "HIGH" : task.priority,
         status: task.status === "REVIEW" ? "IN_PROGRESS" : task.status === "ARCHIVED" ? "DONE" : task.status,
-        assignee: task.assigneeId ?? "Non assignée",
+        assignee: assigneeId,
+        assigneeName: assigneeLabel,
+        assigneeInitials: initials,
         commentsCount: 0,
     };
 }
 
 export default function KanbanPage() {
     const role = useAuthStore((state) => state.role);
+    const currentUserId = useAuthStore((state) => state.user?.userId ?? state.user?.sub ?? "");
     const canManageProjects = role === "DIRECTOR" || role === "MANAGER";
+    const isEmployeeView = role === "EMPLOYEE";
 
     const [tasks, setTasks] = useState<KanbanTask[]>([]);
 
@@ -52,21 +63,50 @@ const [projectModalOpen, setProjectModalOpen] =
 
 const [projects, setProjects] =useState<Project[]>([]);
 const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+const [assigneeOptions, setAssigneeOptions] = useState<{ id: string; label: string; email: string }[]>([]);
+const [userMap, setUserMap] = useState<Map<string, { fullName: string; email: string }>>(new Map());
 const [error, setError] = useState("");
-
 
 useEffect(() => {
     async function fetchProjects() {
         try {
-            const  response = await getProjects();  
+            const response = await getProjects();
             setProjects(response);
             setSelectedProjectId(response[0]?.id ?? null);
         } catch {
             setError("Impossible de charger les projets.");
         }
-       
     }
     fetchProjects();
+}, []);
+
+useEffect(() => {
+    async function fetchUsers() {
+        try {
+            const response = await getUsers();
+            const nextMap = new Map<string, { fullName: string; email: string }>();
+            const mapped = response
+                .map((user) => {
+                    const normalizedUser = {
+                        fullName: user.fullName || user.email || "Utilisateur",
+                        email: user.email || "",
+                    };
+                    nextMap.set(String(user.id), normalizedUser);
+                    return {
+                        id: String(user.id),
+                        label: normalizedUser.fullName || normalizedUser.email,
+                        email: normalizedUser.email,
+                    };
+                })
+                .filter((user) => user.id && user.label);
+            setUserMap(nextMap);
+            setAssigneeOptions(mapped);
+        } catch {
+            setUserMap(new Map());
+            setAssigneeOptions([]);
+        }
+    }
+    fetchUsers();
 }, []);
 
 useEffect(() => {
@@ -75,9 +115,9 @@ useEffect(() => {
     }
 
     getProjectTasks(selectedProjectId)
-        .then((response) => setTasks(response.map(mapTask)))
+        .then((response) => setTasks(response.map((task) => mapTask(task, userMap))))
         .catch(() => setError("Impossible de charger les tâches du projet."));
-}, [selectedProjectId]);
+}, [selectedProjectId, userMap]);
     /*
      * Ouvrir le modal pour créer
      */
@@ -127,9 +167,9 @@ useEffect(() => {
                 title,
                 description,
                 priority,
-                assigneeId: assignee,
+                assigneeId: assignee || undefined,
             });
-            setTasks(prev => [...prev, mapTask(created)]);
+            setTasks(prev => [...prev, mapTask(created, userMap)]);
             setModalOpen(false);
         } catch {
             setError("Impossible de créer la tâche.");
@@ -146,9 +186,9 @@ useEffect(() => {
                 title: updatedTask.title,
                 description: updatedTask.description ?? "",
                 priority: updatedTask.priority,
-                assigneeId: updatedTask.assignee,
+                assigneeId: updatedTask.assignee || undefined,
             });
-            setTasks(prev => prev.map(task => task.id === saved.id ? mapTask(saved) : task));
+            setTasks(prev => prev.map(task => task.id === saved.id ? mapTask(saved, userMap) : task));
             setModalOpen(false);
         } catch {
             setError("Impossible de modifier la tâche.");
@@ -191,24 +231,53 @@ useEffect(() => {
 
         try {
             const saved = await updateTaskStatus(taskId, newStatus);
-            setTasks(prev => prev.map(task => task.id === saved.id ? mapTask(saved) : task));
+            setTasks(prev => prev.map(task => task.id === saved.id ? mapTask(saved, userMap) : task));
         } catch {
             setError("Impossible de changer le statut de la tâche.");
         }
     };
 
 
+    const selectedProject = useMemo(
+        () => projects.find((project) => project.id === selectedProjectId) ?? null,
+        [projects, selectedProjectId]
+    );
+
+    const visibleTasks = useMemo(() => {
+        if (!isEmployeeView) {
+            return tasks;
+        }
+
+        return tasks.filter((task) => {
+            if (!task.assignee || task.assignee === "Non assignée") {
+                return true;
+            }
+            return task.assignee === currentUserId || task.assignee === String(currentUserId);
+        });
+    }, [currentUserId, isEmployeeView, tasks]);
+
     return (
 
     <div className="kanban-page">
         {error && <div className="kanban-error">{error}</div>}
+
         {view === "kanban" && projects.length > 0 && (
-            <label className="kanban-project-select">
-                Projet actif
-                <select value={selectedProjectId ?? ""} onChange={(event) => setSelectedProjectId(event.target.value || null)}>
-                    {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
-                </select>
-            </label>
+            <div className="kanban-project-summary">
+                <div>
+                    <span className="project-summary-label">Projet actif</span>
+                    <h2>{selectedProject?.name ?? "Aucun projet"}</h2>
+                </div>
+                <div className="project-summary-meta">
+                    <span>{selectedProject?.department ?? "Département"}</span>
+                    <span>{selectedProject?.progress ?? 0}% terminé</span>
+                </div>
+                <label className="kanban-project-select">
+                    <span>Changer de projet</span>
+                    <select value={selectedProjectId ?? ""} onChange={(event) => setSelectedProjectId(event.target.value || null)}>
+                        {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+                    </select>
+                </label>
+            </div>
         )}
 
         <KanbanHeader
@@ -233,7 +302,7 @@ useEffect(() => {
 
             <KanbanBoard
 
-                tasks={tasks}
+                tasks={visibleTasks}
 
                 onAddTask={handleAddTask}
 
@@ -242,7 +311,7 @@ useEffect(() => {
                 onDeleteTask={handleDeleteTask}
 
                 onMoveTask={handleMoveTask}
-                canManageTasks={canManageProjects}
+                canManageTasks={canManageProjects || isEmployeeView}
 
             />
 
@@ -279,6 +348,7 @@ useEffect(() => {
                 task={selectedTask}
 
                 status={selectedStatus}
+                assigneeOptions={assigneeOptions}
 
                 onClose={() =>
                     setModalOpen(false)

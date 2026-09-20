@@ -21,6 +21,8 @@ export interface KanbanTask {
     status: TaskStatus;
 
     assignee: string;
+    assigneeName?: string;
+    assigneeInitials?: string;
 
     commentsCount: number;
 

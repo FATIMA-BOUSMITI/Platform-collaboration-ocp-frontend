@@ -8,7 +8,8 @@ import {
 
     FiShield,
 
-    FiActivity
+    FiActivity,
+    FiClipboard
 
 } from "react-icons/fi";
 
@@ -27,6 +28,16 @@ function QuickActions(){
             </div>
 
             <div className="quick-body">
+
+                <QuickActionButton
+
+                    title="Mes tâches à faire"
+
+                    icon={<FiClipboard/>}
+                    to="/tasks"
+
+
+                />
 
                 <QuickActionButton
 
@@ -53,6 +64,14 @@ function QuickActions(){
                     icon={<FiActivity/>}
                     to="/messages"
 
+                />
+
+                <QuickActionButton
+
+                    title="Membres de l'équipe"
+
+                    icon={<FiUsers/>}
+                    to="/membres"
                 />
 
             </div>

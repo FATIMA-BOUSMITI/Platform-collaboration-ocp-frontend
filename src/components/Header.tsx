@@ -1,4 +1,5 @@
 import { FiMenu } from "react-icons/fi";
+import { useAuthStore, getCurrentUserDisplayInfo } from "../features/auth/AuthStore";
 import "./styles/Header.css";
 
 interface HeaderProps {
@@ -6,6 +7,9 @@ interface HeaderProps {
 }
 
 function Header({ onToggleSidebar }: HeaderProps) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { displayName, initials } = getCurrentUserDisplayInfo(accessToken);
+
   return (
     <header className="header">
 
@@ -25,9 +29,9 @@ function Header({ onToggleSidebar }: HeaderProps) {
       </div>
 
       <div className="header-right">
-
-        <div className="header-avatar">
-          AD
+        <div className="header-user" title={displayName}>
+          <div className="header-avatar">{initials}</div>
+          <span>{displayName}</span>
         </div>
       </div>
 

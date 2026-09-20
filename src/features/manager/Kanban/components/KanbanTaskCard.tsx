@@ -145,10 +145,9 @@ export default function KanbanTaskCard({
 
             <div className="task-card-footer">
 
-                <span className="assignee">
-
-                    {task.assignee}
-
+                <span className="assignee-badge" title={task.assigneeName ?? "Non assignée"}>
+                    <span className="assignee-avatar">{task.assigneeInitials ?? "NA"}</span>
+                    <span className="assignee-label">{task.assigneeName ?? "Non assignée"}</span>
                 </span>
 
 

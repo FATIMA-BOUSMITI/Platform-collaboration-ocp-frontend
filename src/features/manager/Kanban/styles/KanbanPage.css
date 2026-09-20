@@ -10,6 +10,60 @@
     color: #1f3029;
 }
 
+.kanban-project-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+    background: linear-gradient(135deg, #ebfaf3, #f6faf7);
+    border: 1px solid #dcefe5;
+    border-radius: 18px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(9, 101, 60, 0.06);
+}
+
+.project-summary-label {
+    display: inline-block;
+    font-size: 12px;
+    color: #5e8071;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.kanban-project-summary h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #16372f;
+}
+
+.project-summary-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #4d655d;
+    font-size: 13px;
+}
+
+.kanban-project-select {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #355142;
+    font-size: 13px;
+    min-width: 220px;
+}
+
+.kanban-project-select select {
+    width: 100%;
+    border: 1px solid #d4e2dc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: white;
+    color: #1f3029;
+}
+
 /* =========================
    PROJECTS GRID
 ========================= */

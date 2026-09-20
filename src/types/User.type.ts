@@ -10,6 +10,9 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  fullName?: string;
+  role?: string;
+  status?: string;
   phone?: string;
   photoUrl?: string | null;
   position?: string;
@@ -19,5 +22,5 @@ export interface User {
   roles?: Role[] | Role | null;
   departement?: Departement | null;
   enabled?: boolean;
-  roleNames?: string[];
+  roleNames?: string[] | string;
 }

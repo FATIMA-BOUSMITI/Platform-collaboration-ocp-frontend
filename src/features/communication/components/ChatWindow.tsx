@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { getUsers } from "../../../api/userApi";
 import { getMessages, sendMessage } from "../api/communicationApi";
 import type { Conversation, Message } from "../types/communication.types";
+import { getInitials } from "../../../utils/person";
 import "../styles/Communication.css";
 interface ChatWindowProps {
   conversation: Conversation;
@@ -13,7 +15,24 @@ export default function ChatWindow({ conversation, currentUserId }: ChatWindowPr
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
+  const [usersById, setUsersById] = useState<Record<string, { fullName: string; email: string }>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const users = await getUsers();
+        const map = users.reduce<Record<string, { fullName: string; email: string }>>((acc, user) => {
+          acc[String(user.id)] = { fullName: user.fullName || user.email || "Utilisateur", email: user.email || "" };
+          return acc;
+        }, {});
+        setUsersById(map);
+      } catch {
+        setUsersById({});
+      }
+    }
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -69,20 +88,31 @@ export default function ChatWindow({ conversation, currentUserId }: ChatWindowPr
 
       <div className="chat-messages">
         {error && <div className="communication-error">{error}</div>}
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`chat-message ${msg.senderId === currentUserId ? "own-message" : ""}`}
-          >
-            <p>{msg.content}</p>
-            <span className="message-time">
-              {new Date(msg.sentAt).toLocaleTimeString("fr-FR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
-        ))}
+        {messages.map((msg) => {
+          const user = usersById[msg.senderId] ?? { fullName: "Utilisateur", email: "" };
+          const isOwn = msg.senderId === currentUserId;
+          const senderName = isOwn ? "Vous" : user.fullName || user.email || "Utilisateur";
+          const initials = getInitials(senderName);
+
+          return (
+            <div
+              key={msg.id}
+              className={`chat-message ${isOwn ? "own-message" : ""}`}
+            >
+              <div className="message-author">
+                <span className="message-avatar">{initials}</span>
+                <span>{senderName}</span>
+              </div>
+              <p>{msg.content}</p>
+              <span className="message-time">
+                {new Date(msg.sentAt).toLocaleTimeString("fr-FR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          );
+        })}
         <div ref={bottomRef} />
       </div>
 

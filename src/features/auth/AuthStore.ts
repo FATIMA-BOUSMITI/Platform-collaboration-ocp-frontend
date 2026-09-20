@@ -6,6 +6,11 @@ interface DecodedUser {
   type: string;
   iat: number;
   exp: number;
+  email?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
 }
 
 interface AuthState {
@@ -17,6 +22,27 @@ interface AuthState {
 
   login: (access: string, refresh: string, role: string) => void;
   logout: () => void;
+}
+
+export function getCurrentUserDisplayInfo(accessToken: string | null): { displayName: string; initials: string; email: string } {
+  if (!accessToken) {
+    return { displayName: "Utilisateur", initials: "U", email: "" };
+  }
+
+  try {
+    const payload = accessToken.split(".")[1];
+    if (!payload) return { displayName: "Utilisateur", initials: "U", email: "" };
+
+    const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))) as DecodedUser;
+    const fullName = [decoded.firstName, decoded.lastName].filter(Boolean).join(" ") || decoded.fullName || decoded.name || "";
+    const email = decoded.email || decoded.sub || "";
+    const displayName = fullName || email || "Utilisateur";
+    const initials = (displayName.match(/[A-ZÀ-ÖØ-Ý]/g) ?? [displayName.charAt(0) ?? "U"]).slice(0, 2).join("").toUpperCase() || "U";
+
+    return { displayName, initials, email };
+  } catch {
+    return { displayName: "Utilisateur", initials: "U", email: "" };
+  }
 }
 
 function decodeUserFromToken(token: string): DecodedUser {
