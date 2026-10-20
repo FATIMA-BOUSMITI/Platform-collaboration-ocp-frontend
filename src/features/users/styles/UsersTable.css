@@ -4,7 +4,8 @@
 
     border-radius:18px;
 
-    overflow:visible;
+    overflow-x:auto;
+    overflow-y:visible;
 
     border:1px solid #E4ECE6;
 
@@ -13,6 +14,7 @@
 .users-table table{
 
     width:100%;
+    min-width:920px;
 
     border-collapse:collapse;
     table-layout:fixed;
@@ -20,34 +22,34 @@
 }
 
 .users-table .user-column{
-    width:30%;
+    width:25%;
 }
 
 .users-table .email-column{
-    width:27%;
+    width:24%;
 }
 
 .users-table .department-column{
-    width:16%;
+    width:17%;
 }
 
 .users-table .role-column{
-    width:13%;
+    width:14%;
 }
 
 .users-table .status-column{
-    width:9%;
+    width:12%;
 }
 
 .users-table .actions-column{
-    width:5%;
+    width:8%;
 }
 
 .users-table th{
 
     text-align:left;
 
-    padding:20px 40px;
+    padding:20px 24px;
 
     color:#667085;
 
@@ -63,7 +65,7 @@
 
 .users-table td{
 
-    padding:22px 28px;
+    padding:22px 24px;
 
     border-bottom:1px solid #EEF2EF;
 
@@ -81,6 +83,7 @@
 .users-table td.actions-cell{
     overflow:visible;
     position:relative;
+    text-align:center;
 }
 
 .users-table .action-menu{
@@ -90,4 +93,9 @@
 
 .users-table .action-dropdown{
     z-index:1000;
+}
+
+@media (max-width: 960px) {
+    .users-table table { min-width: 820px; }
+    .users-table th, .users-table td { padding-left: 16px; padding-right: 16px; }
 }

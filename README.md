@@ -1,75 +1,57 @@
-# React + TypeScript + Vite
+# Plateforme collaborative OCP — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application web de collaboration interne : gestion des utilisateurs, départements, équipes, projets Kanban, documents, messagerie et notifications.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19, TypeScript et Vite
+- React Router
+- Axios pour les appels HTTP
+- STOMP/WebSocket pour les mises à jour temps réel
 
-## React Compiler
+## Prérequis
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 20 ou une version LTS plus récente
+- npm
+- L'API Gateway disponible localement (par défaut : `http://localhost:9000`)
 
-## Expanding the ESLint configuration
+## Démarrage local
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+L'application est servie par Vite, habituellement sur `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Configuration
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Créez un fichier `.env.local` pour modifier les valeurs locales. Ne versionnez jamais de jeton, mot de passe ou clé dans ce fichier.
 
+```env
+VITE_API_URL=http://localhost:9000/api
+# Facultatif : sinon l'URL WebSocket est déduite de VITE_API_URL.
+VITE_WS_URL=ws://localhost:9000/ws
 ```
+
+## Commandes utiles
+
+```bash
+npm run dev          # développement avec rechargement à chaud
+npm run build        # vérification TypeScript et build de production
+npm run lint         # analyse statique
+npm run test:session # tests Node de session
+```
+
+## Routes principales
+
+- `/dashboard` : administration
+- `/users`, `/departments`, `/teams` : référentiels d'organisation
+- `/projects` : projets et Kanban
+- `/documents`, `/messages`, `/notifications` : collaboration
+
+L'accès aux routes est contrôlé selon le rôle connecté (administrateur, directeur, manager ou employé).
+
+## Contribution
+
+Avant une pull request, exécutez `npm run lint` et `npm run build`. Gardez les changements ciblés, ajoutez une description claire et ne commitez aucun fichier d'environnement ou secret.
