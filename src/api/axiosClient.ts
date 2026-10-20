@@ -51,4 +51,6 @@ axiosClient.interceptors.response.use(response=>response,async error=>{
  }
  return Promise.reject(error);
 });
+
+export async function getValidAccessToken():Promise<string>{const token=useAuthStore.getState().accessToken;if(!token)throw new Error("Connexion requise");return decodeUserFromToken(token).exp*1000<=Date.now()+30000?refresh():token;}
 export default axiosClient;
