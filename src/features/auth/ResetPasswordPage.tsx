@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
+import { isAxiosError } from "axios";
 
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -9,6 +10,10 @@ import logo from "../../ocp-logo.png";
 import { resetPassword } from "../../api/authApi.ts";
 
 import "./ResetPasswordPage.css";
+
+interface ApiErrorResponse {
+  message?: string;
+}
 
 function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -19,41 +24,52 @@ function ResetPasswordPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
+    setError("");
 
-  if (!password || !confirmPassword) {
-    alert("Veuillez remplir tous les champs.");
-    return;
-  }
+    if (!token) {
+      setError("Le lien de réinitialisation est invalide ou incomplet.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    if (password.length > 72) {
+      setError("Le mot de passe ne peut pas dépasser 72 caractères.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    alert("Les mots de passe ne correspondent pas.");
-    return;
-  }
-
-  if (!token) {
-    alert("Lien de réinitialisation invalide.");
-    return;
-  }
-
-  try {
-    await resetPassword({
-      token,
-      newPassword: password,
-    });
-
-    alert("Mot de passe réinitialisé avec succès.");
-
-    // Optionnel : redirection vers la page de connexion
-    // navigate("/login");
-
-  } catch (error) {
-    console.error(error);
-    alert("Une erreur est survenue.");
-  }
-};
+    setIsSubmitting(true);
+    try {
+      await resetPassword({
+        token,
+        newPassword: password,
+        confirmedPassword: confirmPassword,
+      });
+      setSuccess(true);
+    } catch (requestError: unknown) {
+      if (isAxiosError<ApiErrorResponse>(requestError)) {
+        setError(
+          requestError.response?.data?.message ??
+            "Le lien est invalide ou expiré. Demandez un nouveau lien."
+        );
+      } else {
+        setError("Impossible de réinitialiser le mot de passe. Réessayez.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="reset-page">
@@ -67,16 +83,21 @@ function ResetPasswordPage() {
         <h1>Nouveau mot de passe</h1>
 
         <p>
-          Choisissez un mot de passe robuste pour sécuriser votre compte.
+          {success
+            ? "Votre mot de passe a été modifié. Vous pouvez maintenant vous connecter."
+            : "Choisissez un mot de passe robuste pour sécuriser votre compte."}
         </p>
 
-        <form onSubmit={handleSubmit}>
+        {!success && token && <form onSubmit={handleSubmit}>
           <Input
             label="Nouveau mot de passe"
             type={showPassword ? "text" : "password"}
             placeholder="********"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+            }}
             error={false}
             rightIcon={
               <button
@@ -94,7 +115,10 @@ function ResetPasswordPage() {
             type={showConfirmPassword ? "text" : "password"}
             placeholder="********"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setError("");
+            }}
             error={false}
             rightIcon={
               <button
@@ -110,13 +134,21 @@ function ResetPasswordPage() {
           />
 
           <Button
-            text="Réinitialiser le mot de passe"
+            text={isSubmitting ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
             type="submit"
+            disabled={isSubmitting}
           />
-        </form>
+        </form>}
+
+        {!token && !success && (
+          <p className="form-feedback failure" role="alert">
+            Le lien de réinitialisation est invalide ou incomplet.
+          </p>
+        )}
+        {error && <p className="form-feedback failure" role="alert">{error}</p>}
 
         <Link
-          to="/login"
+          to="/"
           className="back-link"
         >
           <FiArrowLeft />

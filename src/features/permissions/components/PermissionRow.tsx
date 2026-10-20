@@ -25,7 +25,7 @@ export default function PermissionRow({
 
     return (
 
-        <tr>
+        <tr data-testid="permission-row" data-permission-id={permission.id}>
 
             <td className="permission-name">
                 {permission.description}
@@ -44,6 +44,7 @@ export default function PermissionRow({
                     <td
                         key={role.id}
                         className="permission-cell"
+                        data-role-id={role.id}
                     >
 
                        <PermissionCheckbox

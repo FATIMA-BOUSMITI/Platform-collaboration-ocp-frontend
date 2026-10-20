@@ -44,6 +44,6 @@ export async function addConversationMember(conversationId: string, userId: stri
   await axiosClient.post(`/conversations/${conversationId}/members/${userId}`);
 }
 
-export async function deleteConversation(conversationId: string): Promise<void> {
-  await axiosClient.delete(`/conversations/${conversationId}`);
-}
+export async function markConversationRead(conversationId:string){await axiosClient.patch("/conversations/"+conversationId+"/messages/read");}
+export async function uploadAttachment(conversationId:string,messageId:string,file:File){const form=new FormData();form.append("file",file);return (await axiosClient.post("/conversations/"+conversationId+"/messages/"+messageId+"/attachments",form,{headers:{"Content-Type":undefined}})).data;}
+export async function downloadAttachment(conversationId:string,id:string,name:string){const response=await axiosClient.get("/conversations/"+conversationId+"/attachments/"+id,{responseType:"blob"});const url=URL.createObjectURL(response.data);const anchor=document.createElement("a");anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}

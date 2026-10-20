@@ -1,6 +1,11 @@
 import axiosClient from "./axiosClient";
 
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE" | "ARCHIVED";
+export type TaskStatus =
+  | "TODO"
+  | "IN_PROGRESS"
+  | "REVIEW"
+  | "DONE"
+  | "ARCHIVED";
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export interface TaskRequest {
@@ -33,13 +38,25 @@ export interface CommentResponse {
   createdAt: string;
 }
 
-export async function createTask(projectId: string, request: TaskRequest): Promise<TaskResponse> {
-  const response = await axiosClient.post<TaskResponse>(`/projects/${projectId}/tasks`, request);
+export async function createTask(
+  projectId: string,
+  request: TaskRequest,
+): Promise<TaskResponse> {
+  const response = await axiosClient.post<TaskResponse>(
+    `/projects/${projectId}/tasks`,
+    request,
+  );
   return response.data;
 }
 
-export async function getProjectTasks(projectId: string, status?: TaskStatus): Promise<TaskResponse[]> {
-  const response = await axiosClient.get<TaskResponse[]>(`/projects/${projectId}/tasks`, { params: { status } });
+export async function getProjectTasks(
+  projectId: string,
+  status?: TaskStatus,
+): Promise<TaskResponse[]> {
+  const response = await axiosClient.get<TaskResponse[]>(
+    `/projects/${projectId}/tasks`,
+    { params: { status } },
+  );
   return response.data;
 }
 
@@ -48,42 +65,82 @@ export async function getTask(taskId: string): Promise<TaskResponse> {
   return response.data;
 }
 
-export async function getTasksByAssignee(userId: string): Promise<TaskResponse[]> {
-  const response = await axiosClient.get<TaskResponse[]>(`/tasks/assignee/${userId}`);
+export async function getTasksByAssignee(
+  userId: string,
+): Promise<TaskResponse[]> {
+  const response = await axiosClient.get<TaskResponse[]>(
+    `/tasks/assignee/${userId}`,
+  );
   return response.data;
 }
 
-export async function updateTask(taskId: string, request: TaskRequest): Promise<TaskResponse> {
-  const response = await axiosClient.put<TaskResponse>(`/tasks/${taskId}`, request);
+export async function updateTask(
+  taskId: string,
+  request: TaskRequest,
+): Promise<TaskResponse> {
+  const response = await axiosClient.put<TaskResponse>(
+    `/tasks/${taskId}`,
+    request,
+  );
   return response.data;
 }
 
-export async function updateTaskStatus(taskId: string, status: TaskStatus): Promise<TaskResponse> {
-  const response = await axiosClient.patch<TaskResponse>(`/tasks/${taskId}/status`, { status });
+export async function updateTaskStatus(
+  taskId: string,
+  status: TaskStatus,
+): Promise<TaskResponse> {
+  const response = await axiosClient.patch<TaskResponse>(
+    `/tasks/${taskId}/status`,
+    { status },
+  );
   return response.data;
 }
 
-export async function toggleSubTask(subTaskId: string): Promise<SubTaskResponse> {
-  const response = await axiosClient.patch<SubTaskResponse>(`/subtasks/${subTaskId}/toggle`);
+export async function toggleSubTask(
+  subTaskId: string,
+): Promise<SubTaskResponse> {
+  const response = await axiosClient.patch<SubTaskResponse>(
+    `/subtasks/${subTaskId}/toggle`,
+  );
   return response.data;
 }
 
-export async function getTaskComments(taskId: string): Promise<CommentResponse[]> {
-  const response = await axiosClient.get<CommentResponse[]>(`/tasks/${taskId}/comments`);
+export async function getTaskComments(
+  taskId: string,
+): Promise<CommentResponse[]> {
+  const response = await axiosClient.get<CommentResponse[]>(
+    `/tasks/${taskId}/comments`,
+  );
   return response.data;
 }
 
-export async function addTaskComment(taskId: string, authorId: string, content: string): Promise<CommentResponse> {
-  const response = await axiosClient.post<CommentResponse>(`/tasks/${taskId}/comments`, { authorId, content });
+export async function addTaskComment(
+  taskId: string,
+  authorId: string,
+  content: string,
+  mentionIds: string[] = [],
+): Promise<CommentResponse> {
+  const response = await axiosClient.post<CommentResponse>(
+    `/tasks/${taskId}/comments`,
+    { authorId, content, mentionIds },
+  );
   return response.data;
 }
 
-export async function createSubTask(taskId: string, title: string): Promise<SubTaskResponse> {
-  const response = await axiosClient.post<SubTaskResponse>(`/tasks/${taskId}/subtasks`, { title });
+export async function createSubTask(
+  taskId: string,
+  title: string,
+): Promise<SubTaskResponse> {
+  const response = await axiosClient.post<SubTaskResponse>(
+    `/tasks/${taskId}/subtasks`,
+    { title },
+  );
   return response.data;
 }
 
 export async function getSubTasks(taskId: string): Promise<SubTaskResponse[]> {
-  const response = await axiosClient.get<SubTaskResponse[]>(`/tasks/${taskId}/subtasks`);
+  const response = await axiosClient.get<SubTaskResponse[]>(
+    `/tasks/${taskId}/subtasks`,
+  );
   return response.data;
 }

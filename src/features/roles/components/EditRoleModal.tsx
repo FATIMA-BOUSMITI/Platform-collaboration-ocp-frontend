@@ -32,7 +32,7 @@ export default function EditRoleModal({
 
         <div className="modal-overlay">
 
-            <div className="edit-role-modal">
+            <div className="edit-role-modal" data-testid="edit-role-modal">
 
                 <div className="modal-header">
 

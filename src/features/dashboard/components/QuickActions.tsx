@@ -47,10 +47,10 @@ function QuickActions(){
 
                 <QuickActionButton
 
-                    title="Sauvegarder le système"
+                    title="Consulter les sessions"
 
                     icon={<FiActivity/>}
-                    to=""
+                    to="/sessions"
 
                 />
 

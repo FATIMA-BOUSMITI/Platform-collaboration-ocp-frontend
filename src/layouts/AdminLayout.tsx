@@ -1,60 +1,219 @@
-import { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import "./AdminLayout.css" ;
-
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import "../styles/erp.css";
+import "../features/manager/Kanban/styles/CollaborationBoard.css";
+import NotificationBell from "../features/notifications/NotificationBell";
+import "../features/notifications/Notifications.css";
+import { useEffect, useRef, useState } from "react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { FiGrid, FiChevronDown, FiLogOut, FiMenu } from "react-icons/fi";
 import { useAuthStore } from "../features/auth/AuthStore";
-
-function AdminLayout() {
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  const ToggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+import { usePreferences } from "../features/admin/preferences";
+import api from "../api/axiosClient";
+import { errorMessage } from "../api/adminApi";
+import "../styles/admin.css";
+const groups = [
+  {
+    label: "Utilisateurs",
+    items: [
+      ["/users", "Liste des utilisateurs"],
+      ["/profile", "Mon profil"],
+    ],
+  },
+  {
+    label: "Organisation",
+    items: [
+      ["/departments", "Départements"],
+      ["/teams", "Équipes"],
+    ],
+  },
+  {
+    label: "Projets & Docs",
+    items: [
+      ["/projects", "Projets"],
+      ["/documents", "Documents"],
+      ["/messages", "Messagerie"],
+    ],
+  },
+  {
+    label: "Sécurité",
+    items: [
+      ["/roles", "Rôles"],
+      ["/permissions", "Permissions"],
+      ["/sessions", "Sessions"],
+    ],
+  },
+  { label: "Suivi", items: [["/activity", "Historique des connexions"]] },
+  {
+    label: "Paramètres",
+    items: [
+      ["/settings", "Préférences"],
+      ["/notifications", "Notifications"],
+    ],
+  },
+];
+export default function AdminLayout() {
+  const [open, setOpen] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState(""),
+    [name, setName] = useState("");
+  const user = useAuthStore((s) => s.user),
+    navigate = useNavigate(),
+    location = useLocation(),
+    nav = useRef<HTMLElement>(null);
+  useEffect(() => {
+    api
+      .get("/auth/admin/settings")
+      .then((r) => usePreferences.getState().set(r.data))
+      .catch(() => {});
+    if (user?.userId)
+      api
+        .get("/users/auth/" + user.userId)
+        .then((r) =>
+          setName(
+            [r.data.firstName, r.data.lastName].filter(Boolean).join(" "),
+          ),
+        )
+        .catch(() => {});
+  }, [user?.userId]);
+  useEffect(() => {
+    nav.current
+      ?.querySelectorAll("details[open]")
+      .forEach((d) => d.removeAttribute("open"));
+  }, [location.pathname]);
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (nav.current && !nav.current.contains(e.target as Node))
+        nav.current
+          .querySelectorAll("details[open]")
+          .forEach((d) => d.removeAttribute("open"));
+    }
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+  async function logout() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await api.post("/auth/logout", {
+        refreshToken: useAuthStore.getState().refreshToken,
+      });
+      useAuthStore.getState().logout();
+      navigate("/", { replace: true });
+    } catch (e) {
+      setError("Déconnexion serveur impossible : " + errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
   }
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-
-    navigate("/");
-  };
-
-
+  const displayName = name || user?.sub || "",
+    initials = (
+      name
+        ? name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((p) => p[0])
+            .join("")
+        : displayName.slice(0, 2)
+    ).toUpperCase();
   return (
-    <>
-      <Header onToggleSidebar={ToggleSidebar} />
-
-      {isSidebarOpen && (
-     <div
-    className="sidebar-overlay"
-    onClick={ToggleSidebar}
-     />
-    )}
-
-    <Sidebar
-       isOpen={isSidebarOpen}
-       onClose={ToggleSidebar}
-       onLogout={handleLogout}
-    />
-
-      <main
-        
-          style={{
-        marginTop: "72px",
-        padding: "30px",
-        width: "100%",
-        minHeight: "100vh",
-        background: "#f8fafb",
-        boxSizing: "border-box",
-    }}
-        
-      >
+    <div className="admin-shell admin-reference">
+      <a className="admin-skip" href="#admin-content">
+        Aller au contenu
+      </a>
+      <header className="admin-topbar">
+        <Link
+          to="/dashboard"
+          className="admin-brand"
+          aria-label="OCP · Tableau de bord"
+        >
+          <img src="/ocp-logo.png" alt="OCP" />
+        </Link>
+        <button
+          className="admin-menu-toggle"
+          aria-label="Afficher la navigation"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          <FiMenu />
+        </button>
+        <nav
+          ref={nav}
+          className={"admin-topnav " + (open ? "is-open" : "")}
+          aria-label="Administration"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              nav.current
+                ?.querySelectorAll("details[open]")
+                .forEach((d) => d.removeAttribute("open"));
+              setOpen(false);
+            }
+          }}
+        >
+          <NavLink to="/dashboard" onClick={() => setOpen(false)}>
+            <FiGrid />
+            Tableau de bord
+          </NavLink>
+          {groups.map((g) => (
+            <details
+              className={
+                g.items.some(([to]) => to === location.pathname) ? "active" : ""
+              }
+              key={g.label}
+              onToggle={(e) => {
+                const target = e.currentTarget;
+                if (target.open)
+                  nav.current
+                    ?.querySelectorAll("details[open]")
+                    .forEach((d) => {
+                      if (d !== target) d.removeAttribute("open");
+                    });
+              }}
+            >
+              <summary>
+                {g.label}
+                <FiChevronDown />
+              </summary>
+              <div className="admin-dropdown">
+                {g.items.map(([to, label]) => (
+                  <NavLink key={to} to={to} onClick={() => setOpen(false)}>
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
+            </details>
+          ))}
+        </nav>
+        <NotificationBell />
+        <Link className="admin-identity" to="/profile">
+          <span className="admin-avatar">{initials}</span>
+          <span>
+            <strong>{displayName}</strong>
+            <small>Administrateur système</small>
+          </span>
+        </Link>
+        <button
+          className="admin-logout"
+          disabled={busy}
+          onClick={() => void logout()}
+        >
+          <FiLogOut />
+          {busy ? "Déconnexion…" : "Déconnexion"}
+        </button>
+      </header>
+      {error && (
+        <p className="admin-global-error" role="alert">
+          {error}
+        </p>
+      )}
+      <main id="admin-content" className="admin-content">
         <Outlet />
       </main>
-    </>
+    </div>
   );
 }
-
-export default AdminLayout;

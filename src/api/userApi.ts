@@ -9,24 +9,37 @@ export async function getUsersStats(): Promise<UserStats> {
   return response.data;
 }
 
-export async function getUsers(): Promise<User[]> {
-  const response = await axiosClient.get<User[]>("/users");
-  return response.data;
-}
+export const getUsers = async (): Promise<User[]> => {
+  const response = await axiosClient.get<User[]>("/users", {
+    timeout: 30_000,
+  });
 
-export async function getUserById(userId: string): Promise<UserProfile> {
+  const accounts=(await axiosClient.get<{userId:string;enabled:boolean;accountLocked:boolean}[]>("/auth/users")).data;
+  const byId=new Map(accounts.map(account=>[account.userId,account]));
+  return response.data.map(user=>({...user,...(byId.get(user.userId||user.id)||{})}));
+};
+
+export async function getUserById(userId: string, accessToken?:string): Promise<UserProfile> {
   try {
-    const response = await axiosClient.get<UserProfile>(`/users/${userId}`);
+    const response = await axiosClient.get<UserProfile>(`/users/${userId}`,accessToken?{headers:{Authorization:"Bearer "+accessToken}}:undefined);
     return response.data;
   } catch (error) {
     if (!axios.isAxiosError(error) || error.response?.status !== 404) throw error;
-    const legacyResponse = await axiosClient.get<UserProfile>(`/users/user/${userId}`);
+    const legacyResponse = await axiosClient.get<UserProfile>(`/users/user/${userId}`,accessToken?{headers:{Authorization:"Bearer "+accessToken}}:undefined);
     return legacyResponse.data;
   }
 }
 
-export async function getUserByAuthUserId(authUserId: string): Promise<UserProfile> {
-  const response = await axiosClient.get<UserProfile>(`/users/auth/${authUserId}`);
+export async function getUserByAuthUserId(
+  authUserId: string,
+  accessToken?: string
+): Promise<UserProfile> {
+  const response = await axiosClient.get<UserProfile>(
+    `/users/auth/${authUserId}`,
+    accessToken
+      ? { headers: { Authorization: `Bearer ${accessToken}` } }
+      : undefined
+  );
   return response.data;
 }
 
@@ -62,21 +75,20 @@ export async function updateUser(userId: string, request: UpdateUserRequest): Pr
   return response.data;
 }
 
-export async function assignRoles(userId: string, roleIds: string[]): Promise<UserProfile> {
-  const response = await axiosClient.post<UserProfile>("/users/assign-roles", { userId, roleIds });
-  return response.data;
-}
+export const deleteUser = async (id: string): Promise<number> => {
+  const response = await axiosClient.delete(`/users/${id}`);
+  console.info("DELETE /users responded with HTTP", response.status);
 
-export async function deleteUser(userId: string): Promise<void> {
-  await axiosClient.delete(`/users/${userId}`);
-}
+  if (response.status !== 204) {
+    throw new Error(
+      `Expected DELETE /users/${id} to return HTTP 204, received ${response.status}.`
+    );
+  }
 
-export interface Departement {
-  id: string;
-  name: string;
-}
+  return response.status;
+};
 
-export async function getDepartements(): Promise<Departement[]> {
-  const response = await axiosClient.get<Departement[]>("/users/departements");
-  return response.data;
-}
+
+export async function assignRoles(userId:string,roleIds:string[]):Promise<UserProfile>{const response=await axiosClient.post<UserProfile>("/users/assign-roles",{userId,roleIds});return response.data;}
+export interface Departement{id:string;name:string;}
+export async function getDepartements():Promise<Departement[]>{return (await axiosClient.get<Departement[]>("/users/departements")).data;}

@@ -6,7 +6,7 @@ import EmptyColumn from "./EmptyColumn";
 import type {
     KanbanTask,
     TaskStatus
-} from "../types/kanban.types";
+} from "../types/Kanban.Types";
 
 import "../styles/KanbanColumn.css";
 
@@ -94,6 +94,8 @@ export default function KanbanColumn({
 
         <div
             className="kanban-column"
+            data-testid="kanban-column"
+            data-status={status}
 
             onDragOver={handleDragOver}
 

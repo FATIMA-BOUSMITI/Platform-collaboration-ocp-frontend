@@ -29,7 +29,8 @@ export default function RoleOption({
         <div
 
             className={`role-option ${selected ? "selected" : ""}`}
-
+            data-testid="role-option"
+            data-role-id={role.id}
             onClick={onClick}
 
         >

@@ -1,117 +1,18 @@
-import PermissionsHeader from "../components/PermissionsHeader";
-import PermissionsMatrix from "../components/PermissionsMatrix";
-import { useEffect, useState } from "react";
-import type { Roles } from "../../../types/role.types";
-
-import "../styles/PermissionsPage.css";
+import { useCallback,useEffect,useState } from "react";
+import api from "../../../api/axiosClient";
 import { getRoles } from "../../../api/roleApi";
+import { getPermissions,getRolePermissions } from "../../../api/permissionApi";
 import type { Permission } from "../../../types/permission.type";
-import { getPermissions, getRolePermissions, updateRolePermissions } from "../../../api/permissionApi";
-
-
-
-export default function PermissionsPage() {
-
-  const [roles,setroles] = useState<Roles[]>([]);
-  const [permissions,setpermissions] = useState<Permission[]>([]);
-  const [rolePermissions, setRolePermissions] = useState<Record<string, Permission[]>>({});
-
-  const loadRolePermissions = async (roles: Roles[]) => {
-    const rolePermissionsMap: Record<string, Permission[]> = {};
-    for (const role of roles) {
-      try {
-        const permissions = await getRolePermissions(role.id);
-        rolePermissionsMap[role.id] = permissions;
-      } catch (err) {
-        console.error(`Failed to load permissions for role ${role.name}:`, err);
-      }
-      
-    }
-    setRolePermissions(rolePermissionsMap);
-};
-
-
-  useEffect(() => {
-      const fetchRoles = async () => {
-          try {
-              const roles = await getRoles();
-              setroles(roles);
-              loadRolePermissions(roles);
-          } catch (err) {
-              console.error(err);
-          }
-        };
-        const fetchPermissions = async () => {
-          try {
-              const permissions = await getPermissions();
-              setpermissions(permissions);
-          } catch (err) {
-              console.error(err);
-          }
-        };
-          fetchRoles();
-          fetchPermissions();
-    },[]);
-  
-     
-    const handleSave = async () => {
-        try{
-            for (const roleId in rolePermissions) {
-                const permissions = rolePermissions[roleId];
-                await updateRolePermissions(roleId, permissions.map(p => p.id));
-                console.log("Save");
-            }
-        }
-
-            
-        catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handlePermissionChange = (
-    roleId: string,
-    permission: Permission,
-    checked: boolean
-) => {
-
-    setRolePermissions(prev => {
-
-        const currentPermissions = prev[roleId] || [];
-
-        const updatedPermissions = checked
-            ? [...currentPermissions, permission]
-            : currentPermissions.filter(
-                  p => p.id !== permission.id
-              );
-
-        return {
-            ...prev,
-            [roleId]: updatedPermissions
-        };
-
-    });
-
-};
-
-    return (
-
-        <div className="permissions-page">
-
-        
-     <PermissionsHeader onSave={handleSave}/>
-
-            
-
-            <PermissionsMatrix
-                roles={roles}
-                permissions={permissions}
-                rolePermissions={rolePermissions}
-                 onPermissionChange={handlePermissionChange}
-            />
-
-        </div>
-
-    );
-
+import type { Roles } from "../../../types/role.types";
+import { Page,Feedback,Empty } from "../../admin/AdminUI";
+import { useUnsavedChanges } from "../../admin/useUnsavedChanges";
+import { errorMessage } from "../../../api/adminApi";
+export default function PermissionsPage(){
+ const [roles,setRoles]=useState<Roles[]>([]),[permissions,setPermissions]=useState<Permission[]>([]),[matrix,setMatrix]=useState<Record<string,string[]>>({}),[original,setOriginal]=useState<Record<string,string[]>>({}),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(""),[success,setSuccess]=useState("");
+ const dirty=JSON.stringify(matrix)!==JSON.stringify(original);useUnsavedChanges(dirty);
+ const load=useCallback(async()=>{await Promise.resolve();setLoading(true);setError("");try{const [r,p]=await Promise.all([getRoles(),getPermissions()]);const entries=await Promise.all(r.map(async role=>[role.id,(await getRolePermissions(role.id)).map((permission:Permission)=>permission.id).sort()] as const));const data=Object.fromEntries(entries);setRoles(r);setPermissions(p);setMatrix(data);setOriginal(data);}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);
+ useEffect(()=>{let active=true;void Promise.resolve().then(()=>{if(active)return load();});return()=>{active=false;};},[load]);
+ function system(role:Roles){return ["ADMIN","ADMINISTRATOR","ADMINISTRATEUR","DIRECTOR","MANAGER","EMPLOYEE"].includes(role.name.replace(/^ROLE_/,""));}
+ async function save(){if(busy||!dirty)return;setBusy(true);setSuccess("");setError("");try{const changes=roles.filter(r=>JSON.stringify(matrix[r.id])!==JSON.stringify(original[r.id])).map(r=>({roleId:r.id,permissionIds:matrix[r.id]||[],originalPermissionIds:original[r.id]||[]}));await api.put("/roles/permissions/batch",changes);setOriginal(structuredClone(matrix));setSuccess("Toutes les modifications ont été enregistrées.");}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
+ return <Page title="Permissions" description="Droits attribués aux rôles. Les administrateurs conservent leurs droits système." actions={<button className="primary-button" disabled={loading||busy||!dirty} onClick={()=>void save()}>{busy?"Enregistrement…":"Enregistrer les modifications"}</button>}><Feedback error={error} success={success}/>{loading?<p role="status">Chargement des permissions…</p>:<><p>Sélectionnez les droits autorisés pour chaque rôle. Les permissions des rôles système sont protégées.</p><div className="admin-card admin-table-wrap" data-testid="permissions-page"><table><thead><tr><th>Permission</th>{roles.map(r=><th key={r.id}>{r.name}</th>)}</tr></thead><tbody>{permissions.map(p=><tr key={p.id}><th scope="row">{p.name}<p>{p.description}</p></th>{roles.map(r=>{const checked=(matrix[r.id]||[]).includes(p.id);return <td key={r.id}><input type="checkbox" aria-label={p.name+" · "+r.name} checked={checked} disabled={busy||(system(r)&&(original[r.id]||[]).includes(p.id))} onChange={e=>{setSuccess("");setMatrix(prev=>({...prev,[r.id]:(e.target.checked?[...(prev[r.id]||[]),p.id]:(prev[r.id]||[]).filter(id=>id!==p.id)).sort()}));}}/></td>;})}</tr>)}</tbody></table>{!permissions.length&&<Empty>Aucune permission définie.</Empty>}</div><div className="admin-actions"><button disabled={busy||!dirty} onClick={()=>{setMatrix(structuredClone(original));setSuccess("");}}>Annuler les modifications</button><button disabled={busy} onClick={()=>{if(!dirty||confirm("Abandonner les modifications et recharger ?"))void load();}}>Recharger</button></div></>}</Page>;
 }
