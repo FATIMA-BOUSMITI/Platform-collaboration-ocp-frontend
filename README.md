@@ -2,13 +2,6 @@
 
 Application web de collaboration interne : gestion des utilisateurs, départements, équipes, projets Kanban, documents, messagerie et notifications.
 
-## Stack
-
-- React 19, TypeScript et Vite
-- React Router
-- Axios pour les appels HTTP
-- STOMP/WebSocket pour les mises à jour temps réel
-
 ## Prérequis
 
 - Node.js 20 ou une version LTS plus récente
@@ -22,7 +15,7 @@ npm ci
 npm run dev
 ```
 
-L'application est servie par Vite, habituellement sur `http://localhost:5173`.
+L'application est habituellement disponible sur `http://localhost:5173`.
 
 ## Configuration
 
