@@ -1,6 +1,7 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate } from "react-router-dom";
 
-import NotificationsPage from "../features/notifications/NotificationsPage";
+const NotificationsPage=lazy(()=>import("../features/notifications/NotificationsPage"));
 import LoginPage from "../features/auth/LoginPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
@@ -19,8 +20,8 @@ import UsersPage from "../features/users/UsersPage";
 import DepartmentsPage from "../features/departments/DepartmentsPage";
 
 
-import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
-import CommunicationPage from "../features/communication/pages/CommunicationPage";
+const ManagerKanbanPage=lazy(()=>import("../features/manager/Kanban/pages/KanbanPage"));
+const CommunicationPage=lazy(()=>import("../features/communication/pages/CommunicationPage"));
 import DocumentsPage from "../features/documents/pages/DocumentsPage";
 import DocumentsLayout from "../layouts/DocumentsLayout";
 import CommunicationLayout from "../layouts/CommunicationLayout";
@@ -86,6 +87,6 @@ const router=createBrowserRouter(createRoutesFromElements(
         <Route path="*" element={<Navigate to="/" replace />} />
       </>
 ));
-function AppRouter(){return <RouterProvider router={router}/>;}
+function AppRouter(){return <Suspense fallback={<p role="status" style={{padding:32}}>Chargement de votre espace…</p>}><RouterProvider router={router}/></Suspense>;}
 
 export default AppRouter;

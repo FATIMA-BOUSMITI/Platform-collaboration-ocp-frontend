@@ -5,12 +5,14 @@ export interface Project {
     name: string;
     description: string;
 
+    responsibleId?: string;
     responsableId?: string;
     departmentId?: string;
 
     startDate?: string;
     endDate?: string;
 
+    priority?: string;
     projectPriority?: string;
     status?: string;
 

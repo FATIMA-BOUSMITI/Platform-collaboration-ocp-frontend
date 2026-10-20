@@ -1,44 +1,1084 @@
-import { useCallback,useEffect,useMemo,useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { DndContext,KeyboardSensor,PointerSensor,useSensor,useSensors,useDroppable,closestCorners } from "@dnd-kit/core";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  closestCorners,
+} from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
-import { SortableContext,useSortable,sortableKeyboardCoordinates,verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  useSortable,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FiPlus,FiSearch,FiMoreHorizontal,FiCalendar,FiMessageSquare,FiMove } from "react-icons/fi";
+import {
+  FiPlus,
+  FiSearch,
+  FiMoreHorizontal,
+  FiCalendar,
+  FiMessageSquare,
+  FiMove,
+} from "react-icons/fi";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../auth/AuthStore";
-import { boardApi,directory,departmentDirectory } from "../../../../api/collaborationApi";
-import type { BoardTask,Column,Person } from "../../../../api/collaborationApi";
-import type { TaskPriority,TaskStatus,CommentResponse,SubTaskResponse } from "../../../../api/taskApi";
-import { addTaskComment,getTaskComments,getSubTasks,createSubTask,toggleSubTask,updateTaskStatus } from "../../../../api/taskApi";
-import { getProjects,createProject } from "../../../../api/projectApi";
+import {
+  boardApi,
+  directory,
+  departmentDirectory,
+} from "../../../../api/collaborationApi";
+import type {
+  BoardTask,
+  Column,
+  Person,
+} from "../../../../api/collaborationApi";
+import type {
+  TaskPriority,
+  TaskStatus,
+  CommentResponse,
+  SubTaskResponse,
+} from "../../../../api/taskApi";
+import {
+  addTaskComment,
+  getTaskComments,
+  getSubTasks,
+  createSubTask,
+  toggleSubTask,
+  updateTaskStatus,
+} from "../../../../api/taskApi";
+import { getProjects, createProject } from "../../../../api/projectApi";
 import type { Project } from "../types/Project.Types";
 import { errorMessage } from "../../../../api/adminApi";
-import { Modal,Feedback,Empty } from "../../../admin/AdminUI";
+import { Modal, Feedback, Empty } from "../../../admin/AdminUI";
 import "../styles/CollaborationBoard.css";
-const statuses:TaskStatus[]=["TODO","IN_PROGRESS","REVIEW","DONE"];
-const priorities:TaskPriority[]=["LOW","MEDIUM","HIGH","CRITICAL"];
-const priorityLabels:Record<TaskPriority,string>={LOW:"Basse",MEDIUM:"Moyenne",HIGH:"Haute",CRITICAL:"Critique"};
-const fullName=(p:Person)=>[p.firstName,p.lastName].filter(Boolean).join(" ")||p.email;
-export default function KanbanPage(){
- const [params]=useSearchParams();
- const user=useAuthStore(s=>s.user),role=useAuthStore(s=>s.role);const canManage=["ADMIN","DIRECTOR","MANAGER"].includes(role||"");
- const [projects,setProjects]=useState<Project[]>([]),[projectId,setProjectId]=useState(""),[people,setPeople]=useState<Person[]>([]),[columns,setColumns]=useState<Column[]>([]),[tasks,setTasks]=useState<BoardTask[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false),[search,setSearch]=useState(""),[priority,setPriority]=useState(""),[assignee,setAssignee]=useState(""),[taskForm,setTaskForm]=useState<{task?:BoardTask;columnId?:string}|null>(null),[detail,setDetail]=useState<BoardTask|null>(null),[columnForm,setColumnForm]=useState<Column|null|undefined>(),[newProject,setNewProject]=useState(false),[view,setView]=useState<"kanban"|"projects">("kanban");
- const sensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:7}}),useSensor(KeyboardSensor,{coordinateGetter:sortableKeyboardCoordinates}));
- useEffect(()=>{let active=true;Promise.all([getProjects(),directory()]).then(([p,u])=>{if(active){setProjects(p);setPeople(u);setProjectId(p.find(v=>v.id===params.get("project"))?.id||p[0]?.id||"");}}).catch(e=>{if(active)setError(errorMessage(e));}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
- const reload=useCallback(async()=>{if(!projectId)return;const [c,t]=await Promise.all([boardApi.columns(projectId),boardApi.tasks(projectId)]);setColumns(c);setTasks(t);},[projectId]);
- useEffect(()=>{if(!projectId)return;let active=true;Promise.all([boardApi.columns(projectId),boardApi.tasks(projectId)]).then(([c,t])=>{if(active){setColumns(c);setTasks(t);setError("");}}).catch(e=>{if(active)setError(errorMessage(e));});return()=>{active=false;};},[projectId]);
- useEffect(()=>{const id=params.get("task");if(id){const task=tasks.find(t=>t.id===id);if(task)setDetail(task);}},[params,tasks]);
- const personMap=useMemo(()=>new Map(people.map(p=>[p.id,fullName(p)])),[people]);
- const shown=tasks.filter(t=>t.status!=="ARCHIVED"&&(!priority||t.priority===priority)&&(!assignee||t.assigneeId===assignee)&&(t.title+" "+t.description).toLowerCase().includes(search.toLowerCase()));
- const effectiveColumn=(t:BoardTask)=>t.columnId||columns.find(c=>c.status===t.status)?.id;
- async function move(e:DragEndEvent){if(!e.over||busy)return;const task=tasks.find(t=>t.id===String(e.active.id));if(!task)return;const targetTask=tasks.find(t=>t.id===String(e.over!.id));const columnId=targetTask?effectiveColumn(targetTask):String(e.over.id);const c=columns.find(v=>v.id===columnId);if(!c)return;const targetItems=tasks.filter(t=>t.id!==task.id&&effectiveColumn(t)===columnId).sort((a,b)=>a.position-b.position);const index=targetTask?Math.max(0,targetItems.findIndex(t=>t.id===targetTask.id)):targetItems.length;const previous=tasks;setBusy(true);setTasks(v=>v.map(t=>t.id===task.id?{...t,columnId,status:c.status}:t));try{await boardApi.move(task,c.id,index);await reload();}catch(err){setTasks(previous);setError(errorMessage(err));}finally{setBusy(false);}}
- async function removeColumn(c:Column){if(!confirm("Supprimer la colonne « "+c.name+" » ?"))return;setBusy(true);try{await boardApi.deleteColumn(projectId,c.id);await reload();}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
- return <section className="collab-page" data-testid="kanban-page"><header className="collab-page-heading"><div><p className="collab-eyebrow">ESPACE PROJETS</p><h1>Projets & Kanban</h1><p>Organisez le travail et suivez l’avancement de votre équipe.</p></div><div className="collab-actions">{canManage&&<button className="collab-primary" onClick={()=>setNewProject(true)}><FiPlus/>Nouveau projet</button>}</div></header><Feedback error={error}/><div className="collab-toolbar"><label>Projet<select value={projectId} onChange={e=>{setProjectId(e.target.value);setColumns([]);setTasks([]);}}><option value="">Sélectionner un projet</option>{projects.map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label><div className="collab-segment"><button aria-pressed={view==="kanban"} onClick={()=>setView("kanban")}>Tableau</button><button aria-pressed={view==="projects"} onClick={()=>setView("projects")}>Projets</button></div>{projectId&&<button disabled={busy} onClick={()=>void reload().catch(e=>setError(errorMessage(e)))}>Actualiser</button>}</div>{loading?<p role="status">Chargement des projets…</p>:!projects.length?<Empty>Aucun projet accessible. Les projets apparaissent selon votre rôle et vos affectations.</Empty>:view==="projects"?<div className="collab-project-grid">{projects.map(p=><button className="collab-project-card" key={p.id} onClick={()=>{setProjectId(p.id);setView("kanban");}}><small>{p.reference}</small><h2>{p.name}</h2><p>{p.description}</p><span>{p.status}</span><progress max={100} value={p.progress||0}/><small>{p.progress||0}% terminé</small></button>)}</div>:<><div className="collab-toolbar"><label className="collab-search"><FiSearch/><input aria-label="Rechercher une tâche" placeholder="Rechercher une tâche…" value={search} onChange={e=>setSearch(e.target.value)}/></label><select aria-label="Filtrer par priorité" value={priority} onChange={e=>setPriority(e.target.value)}><option value="">Toutes les priorités</option>{priorities.map(p=><option key={p} value={p}>{priorityLabels[p]}</option>)}</select><select aria-label="Filtrer par collaborateur" value={assignee} onChange={e=>setAssignee(e.target.value)}><option value="">Tous les collaborateurs</option>{people.map(p=><option key={p.id} value={p.id}>{fullName(p)}</option>)}</select>{canManage&&projectId&&<button onClick={()=>setColumnForm(null)}><FiPlus/>Colonne</button>}</div><DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={e=>void move(e)}><div className="collab-board">{columns.map(c=><BoardColumn key={c.id} column={c} tasks={shown.filter(t=>effectiveColumn(t)===c.id).sort((a,b)=>a.position-b.position)} people={personMap} disabled={busy} onOpen={setDetail} onAdd={()=>setTaskForm({columnId:c.id})} canManage={canManage} canMove={t=>canManage||t.assigneeId===user?.userId} onEdit={()=>setColumnForm(c)} onDelete={()=>void removeColumn(c)}/>)}</div></DndContext>{projectId&&!columns.length&&!error&&<p role="status">Chargement du tableau…</p>}</>}{taskForm&&projectId&&<TaskEditor projectId={projectId} initial={taskForm.task} columnId={taskForm.columnId} people={people} onClose={()=>setTaskForm(null)} onSaved={async()=>{setTaskForm(null);await reload();toast.success("Tâche enregistrée");}}/>}{detail&&<TaskDetails task={detail} people={personMap} canManage={canManage} onClose={()=>setDetail(null)} onEdit={()=>{setTaskForm({task:detail});setDetail(null);}} onArchived={async()=>{setDetail(null);await reload();}}/>}{columnForm!==undefined&&<ColumnEditor column={columnForm} projectId={projectId} onClose={()=>setColumnForm(undefined)} onSaved={async()=>{setColumnForm(undefined);await reload();}}/>}{newProject&&<ProjectEditor currentUser={user?.userId||""} people={people} canChooseOwner={role!=="MANAGER"} onClose={()=>setNewProject(false)} onSaved={p=>{setProjects(v=>[...v,p]);setProjectId(p.id);setNewProject(false);}}/>}</section>;
+const statuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
+const priorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+const priorityLabels: Record<TaskPriority, string> = {
+  LOW: "Basse",
+  MEDIUM: "Moyenne",
+  HIGH: "Haute",
+  CRITICAL: "Critique",
+};
+const fullName = (p: Person) =>
+  [p.firstName, p.lastName].filter(Boolean).join(" ") || p.email;
+export default function KanbanPage() {
+  const [params] = useSearchParams();
+  const user = useAuthStore((s) => s.user),
+    role = useAuthStore((s) => s.role);
+  const canManage = ["ADMIN", "DIRECTOR", "MANAGER"].includes(role || "");
+  const [projects, setProjects] = useState<Project[]>([]),
+    [projectId, setProjectId] = useState(""),
+    [people, setPeople] = useState<Person[]>([]),
+    [columns, setColumns] = useState<Column[]>([]),
+    [tasks, setTasks] = useState<BoardTask[]>([]),
+    [loading, setLoading] = useState(true),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    [search, setSearch] = useState(""),
+    [priority, setPriority] = useState(""),
+    [assignee, setAssignee] = useState(""),
+    [taskForm, setTaskForm] = useState<{
+      task?: BoardTask;
+      columnId?: string;
+    } | null>(null),
+    [detail, setDetail] = useState<BoardTask | null>(null),
+    [columnForm, setColumnForm] = useState<Column | null | undefined>(),
+    [newProject, setNewProject] = useState(false),
+    [view, setView] = useState<"kanban" | "projects">("kanban");
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+  useEffect(() => {
+    let active = true;
+    Promise.all([getProjects(), directory()])
+      .then(([p, u]) => {
+        if (active) {
+          setProjects(p);
+          setPeople(u);
+          setProjectId(
+            p.find((v) => v.id === params.get("project"))?.id || p[0]?.id || "",
+          );
+        }
+      })
+      .catch((e) => {
+        if (active) setError(errorMessage(e));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  const reload = useCallback(async () => {
+    if (!projectId) return;
+    const [c, t] = await Promise.all([
+      boardApi.columns(projectId),
+      boardApi.tasks(projectId),
+    ]);
+    setColumns(c);
+    setTasks(t);
+  }, [projectId]);
+  useEffect(() => {
+    if (!projectId) return;
+    let active = true;
+    Promise.all([boardApi.columns(projectId), boardApi.tasks(projectId)])
+      .then(([c, t]) => {
+        if (active) {
+          setColumns(c);
+          setTasks(t);
+          setError("");
+        }
+      })
+      .catch((e) => {
+        if (active) setError(errorMessage(e));
+      });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+  useEffect(() => {
+    const id = params.get("task");
+    if (id) {
+      const task = tasks.find((t) => t.id === id);
+      if (task) setDetail(task);
+    }
+  }, [params, tasks]);
+  const personMap = useMemo(
+    () => new Map(people.map((p) => [p.id, fullName(p)])),
+    [people],
+  );
+  const shown = tasks.filter(
+    (t) =>
+      t.status !== "ARCHIVED" &&
+      (!priority || t.priority === priority) &&
+      (!assignee || t.assigneeId === assignee) &&
+      (t.title + " " + t.description)
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+  );
+  const effectiveColumn = (t: BoardTask) =>
+    t.columnId || columns.find((c) => c.status === t.status)?.id;
+  async function move(e: DragEndEvent) {
+    if (!e.over || busy) return;
+    const task = tasks.find((t) => t.id === String(e.active.id));
+    if (!task) return;
+    const targetTask = tasks.find((t) => t.id === String(e.over!.id));
+    const columnId = targetTask
+      ? effectiveColumn(targetTask)
+      : String(e.over.id);
+    const c = columns.find((v) => v.id === columnId);
+    if (!c) return;
+    const targetItems = tasks
+      .filter((t) => t.id !== task.id && effectiveColumn(t) === columnId)
+      .sort((a, b) => a.position - b.position);
+    const index = targetTask
+      ? Math.max(
+          0,
+          targetItems.findIndex((t) => t.id === targetTask.id),
+        )
+      : targetItems.length;
+    const previous = tasks;
+    setBusy(true);
+    setTasks((v) =>
+      v.map((t) =>
+        t.id === task.id ? { ...t, columnId, status: c.status } : t,
+      ),
+    );
+    try {
+      await boardApi.move(task, c.id, index);
+      await reload();
+    } catch (err) {
+      setTasks(previous);
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function removeColumn(c: Column) {
+    if (!confirm("Supprimer la colonne « " + c.name + " » ?")) return;
+    setBusy(true);
+    try {
+      await boardApi.deleteColumn(projectId, c.id);
+      await reload();
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="collab-page" data-testid="kanban-page">
+      <header className="collab-page-heading">
+        <div>
+          <p className="collab-eyebrow">ESPACE PROJETS</p>
+          <h1>Projets & Kanban</h1>
+          <p>Organisez le travail et suivez l’avancement de votre équipe.</p>
+        </div>
+        <div className="collab-actions">
+          {canManage && (
+            <button
+              className="collab-primary"
+              onClick={() => setNewProject(true)}
+            >
+              <FiPlus />
+              Nouveau projet
+            </button>
+          )}
+        </div>
+      </header>
+      <Feedback error={error} />
+      <div className="collab-toolbar">
+        <label>
+          Projet
+          <select
+            value={projectId}
+            onChange={(e) => {
+              setProjectId(e.target.value);
+              setColumns([]);
+              setTasks([]);
+            }}
+          >
+            <option value="">Sélectionner un projet</option>
+            {projects.map((p) => (
+              <option value={p.id} key={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="collab-segment">
+          <button
+            aria-pressed={view === "kanban"}
+            onClick={() => setView("kanban")}
+          >
+            Tableau
+          </button>
+          <button
+            aria-pressed={view === "projects"}
+            onClick={() => setView("projects")}
+          >
+            Projets
+          </button>
+        </div>
+        {projectId && (
+          <button
+            disabled={busy}
+            onClick={() =>
+              void reload().catch((e) => setError(errorMessage(e)))
+            }
+          >
+            Actualiser
+          </button>
+        )}
+      </div>
+      {loading ? (
+        <p role="status">Chargement des projets…</p>
+      ) : !projects.length ? (
+        <Empty>
+          Aucun projet accessible. Les projets apparaissent selon votre rôle et
+          vos affectations.
+        </Empty>
+      ) : view === "projects" ? (
+        <div className="collab-project-grid">
+          {projects.map((p) => (
+            <button
+              className="collab-project-card"
+              key={p.id}
+              onClick={() => {
+                setProjectId(p.id);
+                setView("kanban");
+              }}
+            >
+              <small>{p.reference}</small>
+              <h2>{p.name}</h2>
+              <p>{p.description}</p>
+              <span>{p.status}</span>
+              <progress max={100} value={p.progress || 0} />
+              <small>{p.progress || 0}% terminé</small>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="collab-toolbar">
+            <label className="collab-search">
+              <FiSearch />
+              <input
+                aria-label="Rechercher une tâche"
+                placeholder="Rechercher une tâche…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </label>
+            <select
+              aria-label="Filtrer par priorité"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              <option value="">Toutes les priorités</option>
+              {priorities.map((p) => (
+                <option key={p} value={p}>
+                  {priorityLabels[p]}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Filtrer par collaborateur"
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
+            >
+              <option value="">Tous les collaborateurs</option>
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {fullName(p)}
+                </option>
+              ))}
+            </select>
+            {canManage && projectId && (
+              <button onClick={() => setColumnForm(null)}>
+                <FiPlus />
+                Colonne
+              </button>
+            )}
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragEnd={(e) => void move(e)}
+          >
+            <div className="collab-board">
+              {columns.map((c) => (
+                <BoardColumn
+                  key={c.id}
+                  column={c}
+                  tasks={shown
+                    .filter((t) => effectiveColumn(t) === c.id)
+                    .sort((a, b) => a.position - b.position)}
+                  people={personMap}
+                  disabled={busy}
+                  onOpen={setDetail}
+                  onAdd={() => setTaskForm({ columnId: c.id })}
+                  canManage={canManage}
+                  canMove={(t) => canManage || t.assigneeId === user?.userId}
+                  onEdit={() => setColumnForm(c)}
+                  onDelete={() => void removeColumn(c)}
+                />
+              ))}
+            </div>
+          </DndContext>
+          {projectId && !columns.length && !error && (
+            <p role="status">Chargement du tableau…</p>
+          )}
+        </>
+      )}
+      {taskForm && projectId && (
+        <TaskEditor
+          projectId={projectId}
+          initial={taskForm.task}
+          columnId={taskForm.columnId}
+          people={people}
+          onClose={() => setTaskForm(null)}
+          onSaved={async () => {
+            setTaskForm(null);
+            await reload();
+            toast.success("Tâche enregistrée");
+          }}
+        />
+      )}
+      {detail && (
+        <TaskDetails
+          task={detail}
+          people={personMap}
+          canManage={canManage}
+          onClose={() => setDetail(null)}
+          onEdit={() => {
+            setTaskForm({ task: detail });
+            setDetail(null);
+          }}
+          onArchived={async () => {
+            setDetail(null);
+            await reload();
+          }}
+        />
+      )}
+      {columnForm !== undefined && (
+        <ColumnEditor
+          column={columnForm}
+          projectId={projectId}
+          onClose={() => setColumnForm(undefined)}
+          onSaved={async () => {
+            setColumnForm(undefined);
+            await reload();
+          }}
+        />
+      )}
+      {newProject && (
+        <ProjectEditor
+          currentUser={user?.userId || ""}
+          people={people}
+          canChooseOwner={role !== "MANAGER"}
+          onClose={() => setNewProject(false)}
+          onSaved={(p) => {
+            setProjects((v) => [...v, p]);
+            setProjectId(p.id);
+            setNewProject(false);
+          }}
+        />
+      )}
+    </section>
+  );
 }
-function BoardColumn({column,tasks,people,disabled,onOpen,onAdd,canManage,canMove,onEdit,onDelete}:{column:Column;tasks:BoardTask[];people:Map<string,string>;disabled:boolean;onOpen:(t:BoardTask)=>void;onAdd:()=>void;canManage:boolean;canMove:(t:BoardTask)=>boolean;onEdit:()=>void;onDelete:()=>void}){const {setNodeRef,isOver}=useDroppable({id:column.id});return <section ref={setNodeRef} className={"collab-column "+(isOver?"is-over":"")}><header><h2><span className={"collab-status-dot "+column.status.toLowerCase()}/>{column.name}<small>{tasks.length}</small></h2>{canManage&&<details><summary aria-label={"Actions · "+column.name}><FiMoreHorizontal/></summary><div className="collab-menu"><button onClick={onEdit}>Modifier</button><button onClick={onDelete}>Supprimer</button></div></details>}</header><SortableContext items={tasks.map(t=>t.id)} strategy={verticalListSortingStrategy}><div className="collab-column-items">{tasks.map(t=><TaskCard key={t.id} task={t} person={people.get(t.assigneeId||"")} disabled={disabled||!canMove(t)} onOpen={()=>onOpen(t)}/>)}</div></SortableContext>{canManage&&<button className="collab-add-task" onClick={onAdd}><FiPlus/>Ajouter une tâche</button>}</section>;}
-function TaskCard({task,person,disabled,onOpen}:{task:BoardTask;person?:string;disabled:boolean;onOpen:()=>void}){const {attributes,listeners,setNodeRef,transform,transition,isDragging}=useSortable({id:task.id,disabled});return <article ref={setNodeRef} className={"collab-task "+(isDragging?"is-dragging":"")} style={{transform:CSS.Transform.toString(transform),transition}}><div className="collab-task-top"><span className={"collab-priority "+task.priority.toLowerCase()}>{priorityLabels[task.priority]}</span><button {...attributes} {...listeners} disabled={disabled} className="collab-drag" aria-label={"Déplacer "+task.title}><FiMove/></button></div><button className="collab-task-title" onClick={onOpen}>{task.title}</button>{task.description&&<p>{task.description}</p>}<footer><span title={person}>{person||"Non attribuée"}</span>{task.dueDate&&<span><FiCalendar/>{new Date(task.dueDate+"T12:00:00").toLocaleDateString("fr-FR")}</span>}<span><FiMessageSquare/>{task.comments?.length||0}</span></footer></article>;}
-function TaskEditor({projectId,initial,columnId,people,onClose,onSaved}:{projectId:string;initial?:BoardTask;columnId?:string;people:Person[];onClose:()=>void;onSaved:()=>Promise<void>}){const [value,setValue]=useState({title:initial?.title||"",description:initial?.description||"",priority:initial?.priority||"MEDIUM" as TaskPriority,assigneeId:initial?.assigneeId||"",dueDate:initial?.dueDate||"",estimatedTimeMinutes:initial?.estimatedTimeMinutes||0}),[busy,setBusy]=useState(false),[error,setError]=useState("");return <Modal title={initial?"Modifier la tâche":"Nouvelle tâche"} busy={busy} onClose={onClose}><Feedback error={error}/><form className="collab-form" onSubmit={async e=>{e.preventDefault();if(busy)return;setBusy(true);try{await boardApi.save(projectId,{...value,assigneeId:value.assigneeId||undefined,dueDate:value.dueDate||undefined,columnId},initial?.id);await onSaved();}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Titre<input required maxLength={150} value={value.title} onChange={e=>setValue({...value,title:e.target.value})}/></label><label>Description<textarea value={value.description} onChange={e=>setValue({...value,description:e.target.value})}/></label><div className="collab-form-row"><label>Priorité<select value={value.priority} onChange={e=>setValue({...value,priority:e.target.value as TaskPriority})}>{priorities.map(p=><option key={p} value={p}>{priorityLabels[p]}</option>)}</select></label><label>Échéance<input type="date" value={value.dueDate} onChange={e=>setValue({...value,dueDate:e.target.value})}/></label></div><label>Collaborateur<select value={value.assigneeId} onChange={e=>setValue({...value,assigneeId:e.target.value})}><option value="">Non attribuée</option>{people.map(p=><option key={p.id} value={p.id}>{fullName(p)}</option>)}</select></label><label>Estimation en minutes<input type="number" min={0} value={value.estimatedTimeMinutes} onChange={e=>setValue({...value,estimatedTimeMinutes:Number(e.target.value)})}/></label><button className="collab-primary" disabled={busy}>{busy?"Enregistrement…":"Enregistrer"}</button></form></Modal>;}
-function TaskDetails({task,people,canManage,onClose,onEdit,onArchived}:{task:BoardTask;people:Map<string,string>;canManage:boolean;onClose:()=>void;onEdit:()=>void;onArchived:()=>Promise<void>}){const userId=useAuthStore(s=>s.user?.userId),[comments,setComments]=useState<CommentResponse[]>([]),[subtasks,setSubtasks]=useState<SubTaskResponse[]>([]),[text,setText]=useState(""),[check,setCheck]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);useEffect(()=>{Promise.all([getTaskComments(task.id),getSubTasks(task.id)]).then(([c,s])=>{setComments(c);setSubtasks(s);}).catch(e=>setError(errorMessage(e)));},[task.id]);return <Modal title={task.title} onClose={onClose} busy={busy}><Feedback error={error}/><div className="collab-task-detail"><p>{task.description||"Aucune description."}</p><p>{people.get(task.assigneeId||"")||"Non attribuée"} · {priorityLabels[task.priority]}</p>{canManage&&<div className="collab-actions"><button onClick={onEdit}>Modifier</button><button disabled={busy} onClick={async()=>{if(!confirm("Archiver cette tâche ?"))return;setBusy(true);try{await updateTaskStatus(task.id,"ARCHIVED");await onArchived();}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}}>Archiver</button></div>}<h3>Liste de contrôle</h3>{subtasks.map(s=><label className="collab-check" key={s.id}><input type="checkbox" checked={s.isDone} disabled={busy} onChange={async()=>{setBusy(true);try{const saved=await toggleSubTask(s.id);setSubtasks(v=>v.map(x=>x.id===s.id?saved:x));}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}}/>{s.title}</label>)}<form onSubmit={async e=>{e.preventDefault();if(busy||!check.trim())return;setBusy(true);try{await createSubTask(task.id,check.trim());setCheck("");setSubtasks(await getSubTasks(task.id));}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Ajouter un élément<input value={check} onChange={e=>setCheck(e.target.value)}/></label><button disabled={busy||!check.trim()}>Ajouter</button></form><h3>Commentaires</h3>{comments.map(c=><article key={c.id} className="collab-comment"><strong>{people.get(c.authorId)||"Collaborateur"}</strong><p>{c.content}</p><small>{c.createdAt?new Date(c.createdAt).toLocaleString("fr-FR"):""}</small></article>)}<form onSubmit={async e=>{e.preventDefault();if(busy||!text.trim()||!userId)return;setBusy(true);try{await addTaskComment(task.id,userId,text.trim());setText("");setComments(await getTaskComments(task.id));}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Nouveau commentaire<textarea required value={text} onChange={e=>setText(e.target.value)}/></label><button className="collab-primary" disabled={busy||!text.trim()}>Publier</button></form></div></Modal>;}
-function ColumnEditor({column,projectId,onClose,onSaved}:{column:Column|null;projectId:string;onClose:()=>void;onSaved:()=>Promise<void>}){const [name,setName]=useState(column?.name||""),[status,setStatus]=useState<TaskStatus>(column?.status||"TODO"),[position,setPosition]=useState(column?.position||0),[busy,setBusy]=useState(false),[error,setError]=useState("");return <Modal title={column?"Modifier la colonne":"Nouvelle colonne"} onClose={onClose} busy={busy}><Feedback error={error}/><form className="collab-form" onSubmit={async e=>{e.preventDefault();setBusy(true);try{if(column)await boardApi.updateColumn(projectId,column.id,{name,status,position});else await boardApi.createColumn(projectId,{name,status});await onSaved();}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Nom<input required maxLength={100} value={name} onChange={e=>setName(e.target.value)}/></label><label>Étape du travail<select value={status} onChange={e=>setStatus(e.target.value as TaskStatus)}>{statuses.map(s=><option key={s}>{s}</option>)}</select></label>{column&&<label>Position<input type="number" min={0} value={position} onChange={e=>setPosition(Number(e.target.value))}/></label>}<button disabled={busy} className="collab-primary">Enregistrer</button></form></Modal>;}
-function ProjectEditor({currentUser,people,canChooseOwner,onClose,onSaved}:{currentUser:string;people:Person[];canChooseOwner:boolean;onClose:()=>void;onSaved:(p:Project)=>void}){const [departments,setDepartments]=useState<{id:string;name:string}[]>([]),[value,setValue]=useState({name:"",description:"",responsableId:currentUser,departmentId:"",startDate:new Date().toISOString().slice(0,10),endDate:"",priority:"MEDIUM" as TaskPriority,budget:0}),[busy,setBusy]=useState(false),[error,setError]=useState("");useEffect(()=>{departmentDirectory().then(setDepartments).catch(e=>setError(errorMessage(e)));},[]);return <Modal title="Nouveau projet" onClose={onClose} busy={busy}><Feedback error={error}/><form className="collab-form" onSubmit={async e=>{e.preventDefault();setBusy(true);try{if(value.endDate<=value.startDate)throw new Error("L’échéance doit être postérieure au début du projet.");onSaved(await createProject(value));}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Nom<input required maxLength={150} value={value.name} onChange={e=>setValue({...value,name:e.target.value})}/></label><label>Description<textarea required value={value.description} onChange={e=>setValue({...value,description:e.target.value})}/></label><label>Responsable<select required disabled={!canChooseOwner} value={value.responsableId} onChange={e=>setValue({...value,responsableId:e.target.value})}>{people.map(p=><option key={p.id} value={p.id}>{fullName(p)}</option>)}</select></label><label>Département<select required value={value.departmentId} onChange={e=>setValue({...value,departmentId:e.target.value})}><option value="">Sélectionner</option>{departments.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label><div className="collab-form-row"><label>Début<input required type="date" value={value.startDate} onChange={e=>setValue({...value,startDate:e.target.value})}/></label><label>Échéance<input required type="date" min={value.startDate} value={value.endDate} onChange={e=>setValue({...value,endDate:e.target.value})}/></label></div><label>Budget<input type="number" min={0} value={value.budget} onChange={e=>setValue({...value,budget:Number(e.target.value)})}/></label><button className="collab-primary" disabled={busy}>Créer le projet</button></form></Modal>;}
+function BoardColumn({
+  column,
+  tasks,
+  people,
+  disabled,
+  onOpen,
+  onAdd,
+  canManage,
+  canMove,
+  onEdit,
+  onDelete,
+}: {
+  column: Column;
+  tasks: BoardTask[];
+  people: Map<string, string>;
+  disabled: boolean;
+  onOpen: (t: BoardTask) => void;
+  onAdd: () => void;
+  canManage: boolean;
+  canMove: (t: BoardTask) => boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  return (
+    <section
+      ref={setNodeRef}
+      className={"collab-column " + (isOver ? "is-over" : "")}
+    >
+      <header>
+        <h2>
+          <span
+            className={"collab-status-dot " + column.status.toLowerCase()}
+          />
+          {column.name}
+          <small>{tasks.length}</small>
+        </h2>
+        {canManage && (
+          <details>
+            <summary aria-label={"Actions · " + column.name}>
+              <FiMoreHorizontal />
+            </summary>
+            <div className="collab-menu">
+              <button onClick={onEdit}>Modifier</button>
+              <button onClick={onDelete}>Supprimer</button>
+            </div>
+          </details>
+        )}
+      </header>
+      <SortableContext
+        items={tasks.map((t) => t.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="collab-column-items">
+          {tasks.map((t) => (
+            <TaskCard
+              key={t.id}
+              task={t}
+              person={people.get(t.assigneeId || "")}
+              disabled={disabled || !canMove(t)}
+              onOpen={() => onOpen(t)}
+            />
+          ))}
+        </div>
+      </SortableContext>
+      {canManage && (
+        <button className="collab-add-task" onClick={onAdd}>
+          <FiPlus />
+          Ajouter une tâche
+        </button>
+      )}
+    </section>
+  );
+}
+function TaskCard({
+  task,
+  person,
+  disabled,
+  onOpen,
+}: {
+  task: BoardTask;
+  person?: string;
+  disabled: boolean;
+  onOpen: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id, disabled });
+  return (
+    <article
+      ref={setNodeRef}
+      className={"collab-task " + (isDragging ? "is-dragging" : "")}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+    >
+      <div className="collab-task-top">
+        <span className={"collab-priority " + task.priority.toLowerCase()}>
+          {priorityLabels[task.priority]}
+        </span>
+        <button
+          {...attributes}
+          {...listeners}
+          disabled={disabled}
+          className="collab-drag"
+          aria-label={"Déplacer " + task.title}
+        >
+          <FiMove />
+        </button>
+      </div>
+      <button className="collab-task-title" onClick={onOpen}>
+        {task.title}
+      </button>
+      {task.description && <p>{task.description}</p>}
+      <footer>
+        <span title={person}>{person || "Non attribuée"}</span>
+        {task.dueDate && (
+          <span>
+            <FiCalendar />
+            {new Date(task.dueDate + "T12:00:00").toLocaleDateString("fr-FR")}
+          </span>
+        )}
+        <span>
+          <FiMessageSquare />
+          {task.comments?.length || 0}
+        </span>
+      </footer>
+    </article>
+  );
+}
+function TaskEditor({
+  projectId,
+  initial,
+  columnId,
+  people,
+  onClose,
+  onSaved,
+}: {
+  projectId: string;
+  initial?: BoardTask;
+  columnId?: string;
+  people: Person[];
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}) {
+  const [value, setValue] = useState({
+      title: initial?.title || "",
+      description: initial?.description || "",
+      priority: initial?.priority || ("MEDIUM" as TaskPriority),
+      assigneeId: initial?.assigneeId || "",
+      dueDate: initial?.dueDate || "",
+      estimatedTimeMinutes: initial?.estimatedTimeMinutes || 0,
+    }),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  return (
+    <Modal
+      title={initial ? "Modifier la tâche" : "Nouvelle tâche"}
+      busy={busy}
+      onClose={onClose}
+    >
+      <Feedback error={error} />
+      <form
+        className="collab-form"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (busy) return;
+          setBusy(true);
+          try {
+            await boardApi.save(
+              projectId,
+              {
+                ...value,
+                assigneeId: value.assigneeId || undefined,
+                dueDate: value.dueDate || undefined,
+                columnId,
+              },
+              initial?.id,
+            );
+            await onSaved();
+          } catch (err) {
+            setError(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          Titre
+          <input
+            required
+            maxLength={150}
+            value={value.title}
+            onChange={(e) => setValue({ ...value, title: e.target.value })}
+          />
+        </label>
+        <label>
+          Description
+          <textarea
+            value={value.description}
+            onChange={(e) =>
+              setValue({ ...value, description: e.target.value })
+            }
+          />
+        </label>
+        <div className="collab-form-row">
+          <label>
+            Priorité
+            <select
+              value={value.priority}
+              onChange={(e) =>
+                setValue({ ...value, priority: e.target.value as TaskPriority })
+              }
+            >
+              {priorities.map((p) => (
+                <option key={p} value={p}>
+                  {priorityLabels[p]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Échéance
+            <input
+              type="date"
+              value={value.dueDate}
+              onChange={(e) => setValue({ ...value, dueDate: e.target.value })}
+            />
+          </label>
+        </div>
+        <label>
+          Collaborateur
+          <select
+            value={value.assigneeId}
+            onChange={(e) => setValue({ ...value, assigneeId: e.target.value })}
+          >
+            <option value="">Non attribuée</option>
+            {people.map((p) => (
+              <option key={p.id} value={p.id}>
+                {fullName(p)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Estimation en minutes
+          <input
+            type="number"
+            min={0}
+            value={value.estimatedTimeMinutes}
+            onChange={(e) =>
+              setValue({
+                ...value,
+                estimatedTimeMinutes: Number(e.target.value),
+              })
+            }
+          />
+        </label>
+        <button className="collab-primary" disabled={busy}>
+          {busy ? "Enregistrement…" : "Enregistrer"}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+function TaskDetails({
+  task,
+  people,
+  canManage,
+  onClose,
+  onEdit,
+  onArchived,
+}: {
+  task: BoardTask;
+  people: Map<string, string>;
+  canManage: boolean;
+  onClose: () => void;
+  onEdit: () => void;
+  onArchived: () => Promise<void>;
+}) {
+  const userId = useAuthStore((s) => s.user?.userId),
+    [comments, setComments] = useState<CommentResponse[]>([]),
+    [subtasks, setSubtasks] = useState<SubTaskResponse[]>([]),
+    [text, setText] = useState(""),
+    [check, setCheck] = useState(""),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false);
+  useEffect(() => {
+    Promise.all([getTaskComments(task.id), getSubTasks(task.id)])
+      .then(([c, s]) => {
+        setComments(c);
+        setSubtasks(s);
+      })
+      .catch((e) => setError(errorMessage(e)));
+  }, [task.id]);
+  return (
+    <Modal title={task.title} onClose={onClose} busy={busy}>
+      <Feedback error={error} />
+      <div className="collab-task-detail">
+        <p>{task.description || "Aucune description."}</p>
+        <p>
+          {people.get(task.assigneeId || "") || "Non attribuée"} ·{" "}
+          {priorityLabels[task.priority]}
+        </p>
+        {canManage && (
+          <div className="collab-actions">
+            <button onClick={onEdit}>Modifier</button>
+            <button
+              disabled={busy}
+              onClick={async () => {
+                if (!confirm("Archiver cette tâche ?")) return;
+                setBusy(true);
+                try {
+                  await updateTaskStatus(task.id, "ARCHIVED");
+                  await onArchived();
+                } catch (e) {
+                  setError(errorMessage(e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Archiver
+            </button>
+          </div>
+        )}
+        <h3>Liste de contrôle</h3>
+        {subtasks.map((s) => (
+          <label className="collab-check" key={s.id}>
+            <input
+              type="checkbox"
+              checked={s.isDone}
+              disabled={busy}
+              onChange={async () => {
+                setBusy(true);
+                try {
+                  const saved = await toggleSubTask(s.id);
+                  setSubtasks((v) => v.map((x) => (x.id === s.id ? saved : x)));
+                } catch (e) {
+                  setError(errorMessage(e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            />
+            {s.title}
+          </label>
+        ))}
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (busy || !check.trim()) return;
+            setBusy(true);
+            try {
+              await createSubTask(task.id, check.trim());
+              setCheck("");
+              setSubtasks(await getSubTasks(task.id));
+            } catch (err) {
+              setError(errorMessage(err));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <label>
+            Ajouter un élément
+            <input value={check} onChange={(e) => setCheck(e.target.value)} />
+          </label>
+          <button disabled={busy || !check.trim()}>Ajouter</button>
+        </form>
+        <h3>Commentaires</h3>
+        {comments.map((c) => (
+          <article key={c.id} className="collab-comment">
+            <strong>{people.get(c.authorId) || "Collaborateur"}</strong>
+            <p>{c.content}</p>
+            <small>
+              {c.createdAt ? new Date(c.createdAt).toLocaleString("fr-FR") : ""}
+            </small>
+          </article>
+        ))}
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (busy || !text.trim() || !userId) return;
+            setBusy(true);
+            try {
+              await addTaskComment(task.id, userId, text.trim());
+              setText("");
+              setComments(await getTaskComments(task.id));
+            } catch (err) {
+              setError(errorMessage(err));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <label>
+            Nouveau commentaire
+            <textarea
+              required
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </label>
+          <button className="collab-primary" disabled={busy || !text.trim()}>
+            Publier
+          </button>
+        </form>
+      </div>
+    </Modal>
+  );
+}
+function ColumnEditor({
+  column,
+  projectId,
+  onClose,
+  onSaved,
+}: {
+  column: Column | null;
+  projectId: string;
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}) {
+  const [name, setName] = useState(column?.name || ""),
+    [status, setStatus] = useState<TaskStatus>(column?.status || "TODO"),
+    [position, setPosition] = useState(column?.position || 0),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  return (
+    <Modal
+      title={column ? "Modifier la colonne" : "Nouvelle colonne"}
+      onClose={onClose}
+      busy={busy}
+    >
+      <Feedback error={error} />
+      <form
+        className="collab-form"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          try {
+            if (column)
+              await boardApi.updateColumn(projectId, column.id, {
+                name,
+                status,
+                position,
+              });
+            else await boardApi.createColumn(projectId, { name, status });
+            await onSaved();
+          } catch (err) {
+            setError(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          Nom
+          <input
+            required
+            maxLength={100}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+        <label>
+          Étape du travail
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as TaskStatus)}
+          >
+            {statuses.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </label>
+        {column && (
+          <label>
+            Position
+            <input
+              type="number"
+              min={0}
+              value={position}
+              onChange={(e) => setPosition(Number(e.target.value))}
+            />
+          </label>
+        )}
+        <button disabled={busy} className="collab-primary">
+          Enregistrer
+        </button>
+      </form>
+    </Modal>
+  );
+}
+function ProjectEditor({
+  currentUser,
+  people,
+  canChooseOwner,
+  onClose,
+  onSaved,
+}: {
+  currentUser: string;
+  people: Person[];
+  canChooseOwner: boolean;
+  onClose: () => void;
+  onSaved: (p: Project) => void;
+}) {
+  const [departments, setDepartments] = useState<
+      { id: string; name: string }[]
+    >([]),
+    [value, setValue] = useState({
+      name: "",
+      description: "",
+      responsableId: currentUser,
+      departmentId: "",
+      startDate: new Date().toISOString().slice(0, 10),
+      endDate: "",
+      priority: "MEDIUM" as TaskPriority,
+      budget: 0,
+    }),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  useEffect(() => {
+    departmentDirectory()
+      .then(setDepartments)
+      .catch((e) => setError(errorMessage(e)));
+  }, []);
+  return (
+    <Modal title="Nouveau projet" onClose={onClose} busy={busy}>
+      <Feedback error={error} />
+      <form
+        className="collab-form"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          try {
+            if (value.endDate <= value.startDate)
+              throw new Error(
+                "L’échéance doit être postérieure au début du projet.",
+              );
+            onSaved(await createProject(value));
+          } catch (err) {
+            setError(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          Nom
+          <input
+            required
+            maxLength={150}
+            value={value.name}
+            onChange={(e) => setValue({ ...value, name: e.target.value })}
+          />
+        </label>
+        <label>
+          Description
+          <textarea
+            required
+            value={value.description}
+            onChange={(e) =>
+              setValue({ ...value, description: e.target.value })
+            }
+          />
+        </label>
+        <label>
+          Responsable
+          <select
+            required
+            disabled={!canChooseOwner}
+            value={value.responsableId}
+            onChange={(e) =>
+              setValue({ ...value, responsableId: e.target.value })
+            }
+          >
+            {people.map((p) => (
+              <option key={p.id} value={p.id}>
+                {fullName(p)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Département
+          <select
+            required
+            value={value.departmentId}
+            onChange={(e) =>
+              setValue({ ...value, departmentId: e.target.value })
+            }
+          >
+            <option value="">Sélectionner</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="collab-form-row">
+          <label>
+            Début
+            <input
+              required
+              type="date"
+              value={value.startDate}
+              onChange={(e) =>
+                setValue({ ...value, startDate: e.target.value })
+              }
+            />
+          </label>
+          <label>
+            Échéance
+            <input
+              required
+              type="date"
+              min={value.startDate}
+              value={value.endDate}
+              onChange={(e) => setValue({ ...value, endDate: e.target.value })}
+            />
+          </label>
+        </div>
+        <label>
+          Budget
+          <input
+            type="number"
+            min={0}
+            value={value.budget}
+            onChange={(e) =>
+              setValue({ ...value, budget: Number(e.target.value) })
+            }
+          />
+        </label>
+        <button className="collab-primary" disabled={busy}>
+          Créer le projet
+        </button>
+      </form>
+    </Modal>
+  );
+}
