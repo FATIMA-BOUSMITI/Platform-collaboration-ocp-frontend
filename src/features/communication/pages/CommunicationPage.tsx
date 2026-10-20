@@ -1,3 +1,6 @@
+import MentionPicker, {
+  textWithMentions,
+} from "../../collaboration/MentionPicker";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FiPlus,
@@ -48,6 +51,7 @@ export default function CommunicationPage() {
     [loading, setLoading] = useState(true),
     [messageLoading, setMessageLoading] = useState(false),
     [error, setError] = useState(""),
+    [mentionIds, setMentionIds] = useState<string[]>([]),
     [text, setText] = useState(""),
     [file, setFile] = useState<File | null>(null),
     [pendingAttachment, setPendingAttachment] = useState<string | null>(null),
@@ -142,6 +146,13 @@ export default function CommunicationPage() {
         c.name ||
         "Conversation privée"
       : c.name || "Conversation";
+  useEffect(() => {
+    setText("");
+    setMentionIds([]);
+    setFile(null);
+    setPendingAttachment(null);
+    if (fileInput.current) fileInput.current.value = "";
+  }, [selected]);
   const current = conversations.find((c) => c.id === selected);
   async function submit() {
     if (!selected || !userId || busy || (!text.trim() && !file)) return;
@@ -152,7 +163,12 @@ export default function CommunicationPage() {
         ? { id: pendingAttachment }
         : await sendMessage(selected, {
             senderId: userId,
-            content: text.trim() || (file ? "Pièce jointe : " + file.name : ""),
+            content: textWithMentions(
+              text.trim() || (file ? "Pièce jointe : " + file.name : ""),
+              mentionIds,
+              personMap,
+            ),
+            mentionIds,
           });
       if (file) {
         try {
@@ -165,12 +181,14 @@ export default function CommunicationPage() {
               errorMessage(e),
           );
           setText("");
+          setMentionIds([]);
           return;
         }
       }
       setMessages(await getMessages(selected));
       setText("");
       setFile(null);
+      setMentionIds([]);
       setPendingAttachment(null);
       if (fileInput.current) fileInput.current.value = "";
       await reloadConversations();
@@ -232,6 +250,7 @@ export default function CommunicationPage() {
                     if (c.id === selected || busy) return;
                     setPendingAttachment(null);
                     setText("");
+                    setMentionIds([]);
                     setFile(null);
                     setMessageLoading(true);
                     setSelected(c.id);
@@ -358,6 +377,21 @@ export default function CommunicationPage() {
                   void submit();
                 }}
               >
+                <MentionPicker
+                  people={
+                    new Map(
+                      (current.memberIds || [])
+                        .filter((id) => id !== userId)
+                        .map((id) => [
+                          id,
+                          personMap.get(id) || "Collaborateur",
+                        ]),
+                    )
+                  }
+                  selected={mentionIds}
+                  onChange={setMentionIds}
+                  disabled={busy || !!pendingAttachment}
+                />
                 {file && (
                   <div className="chat-selected-file">
                     {file.name}

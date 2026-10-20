@@ -1,27 +1,30 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  FiBell,
-  FiMessageSquare,
-  FiCheckCircle,
-  FiClock,
-  FiSettings,
-} from "react-icons/fi";
+import { FiBell, FiTrash2, FiCheckCircle, FiSettings } from "react-icons/fi";
 import { notificationApi } from "../../api/notificationApi";
 import type {
   Notification,
   NotificationPreferences,
 } from "../../api/notificationApi";
 import { subscribeRealtime } from "../collaboration/realtime";
-import { refreshUnreadCount } from "./inbox";
+import ProjectInvitations from "./ProjectInvitations";
+import {
+  NotificationIcon,
+  notificationCategories,
+  notificationLabel,
+  notificationLink,
+} from "./presentation";
+import { refreshUnreadCount, useUnreadCount } from "./inbox";
 import { errorMessage, adminApi } from "../../api/adminApi";
 import type { Notice } from "../../api/adminApi";
 import { useAuthStore } from "../auth/AuthStore";
 import { Modal, Feedback, Empty } from "../admin/AdminUI";
 import "./Notifications.css";
-export default function NotificationsPage() {
+export default function NotificationsPage(){const userId=useAuthStore(s=>s.user?.userId);return <NotificationCenter key={userId}/>;}
+function NotificationCenter() {
   const role = useAuthStore((s) => s.role),
     [items, setItems] = useState<Notification[]>([]),
+    [category, setCategory] = useState("ALL"),
     [page, setPage] = useState(0),
     [unread, setUnread] = useState(false),
     [loading, setLoading] = useState(true),
@@ -31,19 +34,24 @@ export default function NotificationsPage() {
       null,
     ),
     [security, setSecurity] = useState<Notice[]>([]);
+  const count = useUnreadCount((s) => s.count),
+    sequence = useRef(0);
   const reload = useCallback(async () => {
+    const request = ++sequence.current;
+    setLoading(true);
     try {
-      const values = await notificationApi.list(unread, 0);
+      const values = await notificationApi.list(unread, 0, category);
+      if (request !== sequence.current) return;
       setItems(values);
       setPage(0);
       setError("");
       await refreshUnreadCount();
     } catch (e) {
-      setError(errorMessage(e));
+      if (request === sequence.current) setError(errorMessage(e));
     } finally {
-      setLoading(false);
+      if (request === sequence.current) setLoading(false);
     }
-  }, [unread]);
+  }, [unread, category]);
   useEffect(() => {
     let active = true;
     void Promise.resolve().then(() => {
@@ -51,6 +59,7 @@ export default function NotificationsPage() {
     });
     return () => {
       active = false;
+      sequence.current++;
     };
   }, [reload]);
   useEffect(
@@ -106,7 +115,7 @@ export default function NotificationsPage() {
           </button>
           <button
             className="collab-primary"
-            disabled={busy || !items.some((n) => !n.read)}
+            disabled={busy || count === 0}
             onClick={async () => {
               setBusy(true);
               try {
@@ -125,7 +134,21 @@ export default function NotificationsPage() {
         </div>
       </header>
       <Feedback error={error} />
+      <ProjectInvitations />
       <div className="notifications-tabs">
+        <label className="notification-category">
+          Catégorie
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {notificationCategories.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <button aria-pressed={!unread} onClick={() => setUnread(false)}>
           Toutes
         </button>
@@ -152,22 +175,10 @@ export default function NotificationsPage() {
                 n.read ? "notification-item" : "notification-item unread"
               }
             >
-              <span className={"notification-icon " + n.type.toLowerCase()}>
-                {n.type === "MESSAGE" ? (
-                  <FiMessageSquare />
-                ) : n.type === "TASK_DUE" ? (
-                  <FiClock />
-                ) : (
-                  <FiCheckCircle />
-                )}
-              </span>
+              <NotificationIcon type={n.type} />
               <div>
                 <Link
-                  to={
-                    n.link.startsWith("/") && !n.link.startsWith("//")
-                      ? n.link
-                      : "/notifications"
-                  }
+                  to={notificationLink(n.link)}
                   onClick={() => {
                     if (!n.read)
                       void notificationApi
@@ -176,14 +187,36 @@ export default function NotificationsPage() {
                         .catch(() => {});
                   }}
                 >
+                  <small className="notification-category-label">
+                    {notificationLabel(n.type)}
+                  </small>
                   <h2>{n.title}</h2>
                   <p>{n.body}</p>
                 </Link>
                 <time>{new Date(n.createdAt).toLocaleString("fr-FR")}</time>
               </div>
-              <button disabled={busy} onClick={() => void mark(n)}>
-                {n.read ? "Marquer non lue" : "Marquer lue"}
-              </button>
+              <div className="notification-row-actions">
+                <button disabled={busy} onClick={() => void mark(n)}>
+                  {n.read ? "Marquer non lue" : "Marquer lue"}
+                </button>
+                <button
+                  disabled={busy}
+                  aria-label={"Supprimer : " + n.title}
+                  onClick={async () => {
+                    setBusy(true);
+                    try {
+                      await notificationApi.delete(n.id);
+                      await reload();
+                    } catch (e) {
+                      setError(errorMessage(e));
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
             </article>
           ))
         )}
@@ -194,8 +227,16 @@ export default function NotificationsPage() {
           onClick={async () => {
             setBusy(true);
             try {
-              const values = await notificationApi.list(unread, page + 1);
-              setItems((v) => [...v, ...values]);
+              const request = sequence.current;
+              const values = await notificationApi.list(
+                unread,
+                page + 1,
+                category,
+              );
+              if (request !== sequence.current) return;
+              setItems((v) => [
+                ...new Map([...v, ...values].map((n) => [n.id, n])).values(),
+              ]);
               setPage((v) => v + 1);
             } catch (e) {
               setError(errorMessage(e));
@@ -271,7 +312,9 @@ function Preferences({
           }
         }}
       >
-        {(["messages", "tasks", "deadlines"] as const).map((key, i) => (
+        {(
+          ["messages", "tasks", "deadlines", "mentions", "invitations"] as const
+        ).map((key, i) => (
           <label className="notification-preference" key={key}>
             <input
               type="checkbox"
@@ -283,6 +326,8 @@ function Preferences({
                 "Nouveaux messages",
                 "Affectations et modifications de tâches",
                 "Rappels d’échéance",
+                "Mentions dans les messages et commentaires",
+                "Invitations aux projets",
               ][i]
             }
           </label>

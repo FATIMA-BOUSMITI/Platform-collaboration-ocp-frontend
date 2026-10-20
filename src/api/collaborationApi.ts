@@ -28,6 +28,8 @@ export const departmentDirectory = async () =>
     )
   ).data;
 export const boardApi = {
+  mentionCandidates: async (taskId: string) =>
+    (await api.get<string[]>("/tasks/" + taskId + "/mention-candidates")).data,
   columns: async (projectId: string) =>
     (await api.get<Column[]>("/projects/" + projectId + "/columns")).data,
   tasks: async (projectId: string) =>

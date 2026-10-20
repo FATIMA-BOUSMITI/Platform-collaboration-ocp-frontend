@@ -1,3 +1,7 @@
+import ProjectInvitationForm from "../components/ProjectInvitationForm";
+import MentionPicker, {
+  textWithMentions,
+} from "../../../collaboration/MentionPicker";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -70,7 +74,9 @@ export default function KanbanPage() {
   const [params] = useSearchParams();
   const user = useAuthStore((s) => s.user),
     role = useAuthStore((s) => s.role);
-  const canManage = ["ADMIN", "DIRECTOR", "MANAGER"].includes(role || "");
+  const canCreateProject = ["ADMIN", "DIRECTOR", "MANAGER"].includes(
+    role || "",
+  );
   const [projects, setProjects] = useState<Project[]>([]),
     [projectId, setProjectId] = useState(""),
     [people, setPeople] = useState<Person[]>([]),
@@ -90,6 +96,13 @@ export default function KanbanPage() {
     [columnForm, setColumnForm] = useState<Column | null | undefined>(),
     [newProject, setNewProject] = useState(false),
     [view, setView] = useState<"kanban" | "projects">("kanban");
+  const selectedProject = projects.find((p) => p.id === projectId);
+  const canManage =
+    ["ADMIN", "DIRECTOR"].includes(role || "") ||
+    (role === "MANAGER" &&
+      (selectedProject?.responsibleId || selectedProject?.responsableId) ===
+        user?.userId);
+  const [inviting, setInviting] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
     useSensor(KeyboardSensor, {
@@ -224,7 +237,10 @@ export default function KanbanPage() {
           <p>Organisez le travail et suivez l’avancement de votre équipe.</p>
         </div>
         <div className="collab-actions">
-          {canManage && (
+          {projectId && canManage && (
+            <button onClick={() => setInviting(true)}>Inviter au projet</button>
+          )}
+          {canCreateProject && (
             <button
               className="collab-primary"
               onClick={() => setNewProject(true)}
@@ -236,6 +252,14 @@ export default function KanbanPage() {
         </div>
       </header>
       <Feedback error={error} />
+      {inviting && (
+        <ProjectInvitationForm
+          projectId={projectId}
+          people={people}
+          userId={user?.userId || ""}
+          onClose={() => setInviting(false)}
+        />
+      )}
       <div className="collab-toolbar">
         <label>
           Projet
@@ -721,6 +745,8 @@ function TaskDetails({
   onArchived: () => Promise<void>;
 }) {
   const userId = useAuthStore((s) => s.user?.userId),
+    [mentionIds, setMentionIds] = useState<string[]>([]),
+    [candidates, setCandidates] = useState<string[]>([]),
     [comments, setComments] = useState<CommentResponse[]>([]),
     [subtasks, setSubtasks] = useState<SubTaskResponse[]>([]),
     [text, setText] = useState(""),
@@ -728,8 +754,13 @@ function TaskDetails({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   useEffect(() => {
-    Promise.all([getTaskComments(task.id), getSubTasks(task.id)])
-      .then(([c, s]) => {
+    Promise.all([
+      getTaskComments(task.id),
+      getSubTasks(task.id),
+      boardApi.mentionCandidates(task.id),
+    ])
+      .then(([c, s, ids]) => {
+        setCandidates(ids);
         setComments(c);
         setSubtasks(s);
       })
@@ -772,7 +803,7 @@ function TaskDetails({
             <input
               type="checkbox"
               checked={s.isDone}
-              disabled={busy}
+              disabled={busy||(!canManage&&task.assigneeId!==userId)}
               onChange={async () => {
                 setBusy(true);
                 try {
@@ -826,7 +857,13 @@ function TaskDetails({
             if (busy || !text.trim() || !userId) return;
             setBusy(true);
             try {
-              await addTaskComment(task.id, userId, text.trim());
+              await addTaskComment(
+                task.id,
+                userId,
+                textWithMentions(text, mentionIds, people),
+                mentionIds,
+              );
+              setMentionIds([]);
               setText("");
               setComments(await getTaskComments(task.id));
             } catch (err) {
@@ -844,6 +881,18 @@ function TaskDetails({
               onChange={(e) => setText(e.target.value)}
             />
           </label>
+          <MentionPicker
+            people={
+              new Map(
+                candidates
+                  .filter((id) => id !== userId)
+                  .map((id) => [id, people.get(id) || "Collaborateur"]),
+              )
+            }
+            selected={mentionIds}
+            onChange={setMentionIds}
+            disabled={busy}
+          />
           <button className="collab-primary" disabled={busy || !text.trim()}>
             Publier
           </button>

@@ -12,12 +12,14 @@ export interface NotificationPreferences {
   messages: boolean;
   tasks: boolean;
   deadlines: boolean;
+  mentions: boolean;
+  invitations: boolean;
 }
 export const notificationApi = {
-  list: async (unread = false, page = 0) =>
+  list: async (unread = false, page = 0, category = "ALL") =>
     (
       await api.get<Notification[]>("/notifications", {
-        params: { unread, page },
+        params: { unread, page, category },
       })
     ).data,
   count: async () =>
@@ -25,6 +27,9 @@ export const notificationApi = {
       .count,
   read: async (id: string, read: boolean) => {
     await api.patch("/notifications/" + id + "/read", { read });
+  },
+  delete: async (id: string) => {
+    await api.delete("/notifications/" + id);
   },
   readAll: async () => {
     await api.patch("/notifications/read-all");

@@ -8,6 +8,9 @@ import { dispatchRealtime, useRealtime } from "./realtime";
 export default function RealtimeBridge() {
   const userId = useAuthStore((s) => s.user?.userId);
   useEffect(() => {
+    toast.dismiss();
+    useRealtime.setState({connected:false,signal:null});
+    useUnreadCount.getState().set(0);
     if (!userId) {
       useUnreadCount.getState().set(0);
       return;
@@ -15,6 +18,7 @@ export default function RealtimeBridge() {
     void refreshUnreadCount().catch(() => {});
     let active = true;
     let renewal: ReturnType<typeof setTimeout> | undefined;
+    let retry: ReturnType<typeof setTimeout> | undefined;
     const apiURL = import.meta.env.VITE_API_URL || "http://localhost:9000/api";
     const url = new URL("/ws", new URL(apiURL, window.location.origin));
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
@@ -26,22 +30,18 @@ export default function RealtimeBridge() {
       connectionTimeout: 10000,
     });
     client.beforeConnect = async () => {
-      const token = await getValidAccessToken();
-      if (!active) return;
-      client.connectHeaders = { Authorization: "Bearer " + token };
-      clearTimeout(renewal);
-      renewal = setTimeout(
-        () => {
-          if (active)
-            void client.deactivate().then(() => {
-              if (active) client.activate();
-            });
-        },
-        Math.max(
-          1000,
-          decodeUserFromToken(token).exp * 1000 - Date.now() - 30000,
-        ),
-      );
+      clearTimeout(retry);
+      try {
+        const token=await getValidAccessToken();
+        if(!active||useAuthStore.getState().user?.userId!==userId)return;
+        client.connectHeaders={Authorization:"Bearer "+token};
+        clearTimeout(renewal);
+        renewal=setTimeout(()=>{if(active)void client.deactivate().then(()=>{if(active)client.activate();});},Math.max(1000,decodeUserFromToken(token).exp*1000-Date.now()-30000));
+      } catch {
+        useRealtime.getState().setConnected(false);
+        await client.deactivate();
+        if(active&&useAuthStore.getState().user?.userId===userId)retry=setTimeout(()=>{if(active)client.activate();},5000);
+      }
     };
     client.onConnect = () => {
       if (!active) return;
@@ -49,6 +49,7 @@ export default function RealtimeBridge() {
       dispatchRealtime({ kind: "connected" });
       for (const queue of ["messages", "notifications"])
         client.subscribe("/user/queue/" + queue, (message) => {
+          if(!active||useAuthStore.getState().user?.userId!==userId)return;
           try {
             const signal = JSON.parse(message.body);
             dispatchRealtime(signal);
@@ -83,6 +84,7 @@ export default function RealtimeBridge() {
     return () => {
       active = false;
       clearTimeout(renewal);
+      clearTimeout(retry);
       useRealtime.getState().setConnected(false);
       void client.deactivate();
     };
