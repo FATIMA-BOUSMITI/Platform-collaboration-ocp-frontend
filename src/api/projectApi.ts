@@ -17,8 +17,12 @@ export interface ProjectRequest {
     budget: number;
 }
 
+function projectPayload(request: Partial<ProjectRequest>) {
+ const { responsableId, priority, ...fields } = request;
+ return { ...fields, ...(responsableId !== undefined ? { responsibleId: responsableId } : {}), ...(priority !== undefined ? { projectPriority: priority } : {}) };
+}
 export async function createProject(request: ProjectRequest): Promise<Project> {
-    const response = await axiosClient.post<Project>("/projects", request);
+    const response = await axiosClient.post<Project>("/projects", projectPayload(request));
     return response.data;
 }
 
@@ -33,7 +37,7 @@ export async function getProjectsByDepartment(departmentId: string): Promise<Pro
 }
 
 export async function updateProject(projectId: string, request: Partial<ProjectRequest>): Promise<Project> {
-    const response = await axiosClient.put<Project>(`/projects/${projectId}`, request);
+    const response = await axiosClient.put<Project>(`/projects/${projectId}`, projectPayload(request));
     return response.data;
 }
 
