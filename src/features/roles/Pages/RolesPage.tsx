@@ -1,160 +1,18 @@
-import { useEffect, useState } from "react";
-
-import RolesHeader from "../components/RolesHeader";
-import SearchBar from "../components/SearchBar";
-import RolesTable from "../components/RolesTable";
-import EditRoleModal from "../components/EditRoleModal";
-
-import "../styles/RolesPage.css";
-
-import type { Roles, UserRole} from "../../../types/role.types";
+import { useCallback,useEffect,useState } from "react";
+import api from "../../../api/axiosClient";
+import { getRoles,updateUserRole } from "../../../api/roleApi";
 import { getUsers } from "../../../api/userApi";
-import { mapUserToUserRole } from "../../../mappers";
-import { getRoles, updateUserRole } from "../../../api/roleApi";
-
-
-
-
-function RolesPage() {
-
-  const [users, setUsers] = useState<UserRole[]>([]);
-
-  const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
-
-  const [selectedRoleId, setSelectedRoleId] = useState("");
-
-  const [search, setSearch] = useState("");
-  const [roles, setRoles] = useState<Roles[]>([]);
-
-  useEffect(() => {
-
-    async function fetchUsers() {
-
-      try {
-
-        const data = await getUsers();
-
-        const usersForTable = data.map(mapUserToUserRole);
-
-        setUsers(usersForTable);
-
-      } catch (err) {
-
-        console.error(err);
-
-      }
-
-    }
-
-    fetchUsers();
-
-  }, []);
-  useEffect(()=>{
-    const fetchRoles = async () => {
-      try{
-        const roles = await getRoles();
-        setRoles(roles);
-      }catch(err){
-        console.error(err);
-      }
-    };
-    fetchRoles();
-  }, []);
-
-  const usersFiltered = users.filter((user) => {
-
-    const value = search.toLowerCase();
-
-    return (
-
-      user.firstName.toLowerCase().includes(value) ||
-
-      user.lastName.toLowerCase().includes(value) ||
-
-      user.email.toLowerCase().includes(value) ||
-
-      user.department.toLowerCase().includes(value) ||
-
-      user.role.name.toLowerCase().includes(value)
-
-    );
-
-  });
-
-  const handleChange = (value: string) => {
-
-    setSearch(value);
-
-  };
-
-  const handleEditRole = (user: UserRole) => {
-
-    setSelectedUser(user);
-
-    setSelectedRoleId(roles.find((role) => role.name === user.role.name)?.id || "");
-
-  };
-  const onSave = async()=>{
-    if(selectedUser && selectedRoleId){
-      try{
-        await updateUserRole(selectedUser.id, selectedRoleId);  
-        const data = await getUsers();
-        const usersForTable = data.map(mapUserToUserRole);
-        setUsers(usersForTable);
-
-        setSelectedUser(null);
-
-      }catch(err){
-        console.error(err);
-      }
-    }
-      
-  };
-
-  return (
-
-    <div className="roles-page">
-
-      <RolesHeader usersTotale={users.length} />
-
-      <SearchBar
-
-        value={search}
-
-        onChange={handleChange}
-
-      />
-
-      <RolesTable
-
-        users={usersFiltered}
-
-        onEditRole={handleEditRole}
-
-      />
-
-      <EditRoleModal
-
-        open={selectedUser !== null}
-
-        user={selectedUser}
-
-        roles={roles}
-
-        selectedRoleId={selectedRoleId}
-
-        onSelectRole={setSelectedRoleId}
-
-        onSave={onSave}
-
-        onClose={() => setSelectedUser(null)}
-
-      />
-
-    </div>
-
-  );
-
+import type { Roles } from "../../../types/role.types";
+import type { User } from "../../../types/User.type";
+import { Page,Feedback,Empty,Modal } from "../../admin/AdminUI";
+import { errorMessage } from "../../../api/adminApi";
+const protectedRole=(name:string)=>["ADMIN","ADMINISTRATOR","ADMINISTRATEUR","DIRECTOR","MANAGER","EMPLOYEE"].includes(name.replace(/^ROLE_/,""));
+export default function RolesPage(){
+ const [roles,setRoles]=useState<Roles[]>([]),[users,setUsers]=useState<User[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(""),[success,setSuccess]=useState(""),[selected,setSelected]=useState<Roles|null|undefined>(),[search,setSearch]=useState("");
+ const load=useCallback(async()=>{await Promise.resolve();setLoading(true);try{const [r,u]=await Promise.all([getRoles(),getUsers()]);setRoles(r);setUsers(u);setError("");}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);useEffect(()=>{let active=true;void Promise.resolve().then(()=>{if(active)return load();});return()=>{active=false;};},[load]);
+ async function assign(user:User,roleId:string){if(!confirm("Modifier le rôle de "+user.email+" ?"))return;setBusy(true);setSuccess("");try{await updateUserRole(user.id,roleId);await load();setSuccess("Rôle attribué.");}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
+ async function remove(role:Roles){if(!confirm("Supprimer le rôle « "+role.name+" » ?"))return;setBusy(true);try{await api.delete("/roles/"+role.id);await load();setSuccess("Rôle supprimé.");}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
+ function roleOf(user:User){const role=Array.isArray(user.roles)?user.roles[0]:user.roles;return roles.find(r=>r.name===role?.name)?.id||"";}
+ return <Page title="Rôles et accès" description="Catalogue des rôles et attribution aux collaborateurs." actions={<button className="primary-button" disabled={loading||busy} onClick={()=>setSelected(null)}>Créer un rôle</button>}><Feedback error={error} success={success}/>{loading?<p role="status">Chargement des rôles…</p>:<><div className="admin-grid">{roles.map(r=><article className="admin-card" key={r.id}><h2>{r.name}</h2><p>{r.description||"Aucune description."}</p>{protectedRole(r.name)?<span className="admin-badge">Rôle système protégé</span>:<div className="admin-actions"><button disabled={busy} onClick={()=>setSelected(r)}>Modifier</button><button className="danger-button" disabled={busy} onClick={()=>void remove(r)}>Supprimer</button></div>}</article>)}</div><section className="admin-card"><h2>Attribution des rôles</h2><label>Rechercher un collaborateur<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Nom ou email"/></label><div className="admin-table-wrap"><table><thead><tr><th>Collaborateur</th><th>Email</th><th>Rôle</th></tr></thead><tbody>{users.filter(u=>(u.firstName+" "+u.lastName+" "+u.email).toLowerCase().includes(search.toLowerCase())).map(u=><tr key={u.id}><td>{u.firstName} {u.lastName}</td><td>{u.email}</td><td><select aria-label={"Rôle de "+u.email} value={roleOf(u)} disabled={busy} onChange={e=>void assign(u,e.target.value)}><option value="" disabled>Sans rôle</option>{roles.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></td></tr>)}</tbody></table>{!users.length&&<Empty>Aucun collaborateur.</Empty>}</div></section></>}{selected!==undefined&&<RoleForm role={selected} onClose={()=>setSelected(undefined)} onSaved={async()=>{setSelected(undefined);await load();setSuccess("Rôle enregistré.");}}/>}</Page>;
 }
-
-export default RolesPage;
+function RoleForm({role,onClose,onSaved}:{role:Roles|null;onClose:()=>void;onSaved:()=>Promise<void>}){const [name,setName]=useState(role?.name||""),[description,setDescription]=useState(role?.description||""),[busy,setBusy]=useState(false),[error,setError]=useState("");return <Modal title={role?"Modifier le rôle":"Nouveau rôle"} busy={busy} onClose={onClose}><Feedback error={error}/><form className="admin-form" onSubmit={async e=>{e.preventDefault();if(busy)return;setBusy(true);try{const value={name,description};if(role)await api.put("/roles/"+role.id,value);else await api.post("/roles",value);await onSaved();}catch(err){setError(errorMessage(err));}finally{setBusy(false);}}}><label>Nom<input required minLength={2} maxLength={50} pattern="[A-Z][A-Z0-9_]+" value={name} onChange={e=>setName(e.target.value.toUpperCase())}/></label><label>Description<textarea maxLength={255} value={description} onChange={e=>setDescription(e.target.value)}/></label><button className="primary-button" disabled={busy}>{busy?"Enregistrement…":"Enregistrer"}</button></form></Modal>;}

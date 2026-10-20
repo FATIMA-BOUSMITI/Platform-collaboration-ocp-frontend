@@ -55,7 +55,7 @@ export async function updateUserRole(
     "/users/assign-roles",
     {
       userId,
-      roleIds: [roleId]
+      roleId
     }
   );
 

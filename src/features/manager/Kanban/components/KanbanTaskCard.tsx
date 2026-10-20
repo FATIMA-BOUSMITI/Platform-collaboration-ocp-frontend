@@ -5,7 +5,7 @@ import {
 
 import type {
     KanbanTask
-} from "../types/kanban.types";
+} from "../types/Kanban.Types";
 
 import "../styles/KanbanTaskCard.css";
 
@@ -67,6 +67,8 @@ export default function KanbanTaskCard({
         <div
 
             className="kanban-task-card"
+            data-testid="kanban-task-card"
+            data-task-id={task.id}
 
             draggable={canManageTasks}
 

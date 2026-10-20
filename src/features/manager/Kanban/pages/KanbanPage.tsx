@@ -10,7 +10,7 @@ import type {
     KanbanTask,
     TaskPriority,
     TaskStatus
-} from "../types/kanban.types";
+} from "../types/Kanban.Types";
 
 import "../styles/KanbanPage.css";
 import ProjectCard from "../components/ProjectCard";
@@ -258,7 +258,7 @@ useEffect(() => {
 
     return (
 
-    <div className="kanban-page">
+    <div className="kanban-page" data-testid="kanban-page">
         {error && <div className="kanban-error">{error}</div>}
 
         {view === "kanban" && projects.length > 0 && (

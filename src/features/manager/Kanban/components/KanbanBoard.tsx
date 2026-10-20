@@ -3,7 +3,7 @@ import KanbanColumn from "./KanbanColumn";
 import type {
     KanbanTask,
     TaskStatus
-} from "../types/kanban.types";
+} from "../types/Kanban.Types";
 
 import "../styles/KanbanBoard.css";
 

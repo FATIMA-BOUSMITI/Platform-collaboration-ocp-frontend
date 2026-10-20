@@ -21,6 +21,8 @@ export interface User {
   timezone?: string | null;
   roles?: Role[] | Role | null;
   departement?: Departement | null;
+  userId?: string;
+  accountLocked?: boolean;
   enabled?: boolean;
   roleNames?: string[] | string;
 }

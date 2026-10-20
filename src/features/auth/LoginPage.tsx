@@ -5,11 +5,11 @@ import { login } from "../../api/authApi.ts";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { jwtDecode } from "jwt-decode";
-import { getUserById } from "../../api/userApi.ts";
+import { getUserByAuthUserId, getUserById } from "../../api/userApi.ts";
 import type { JwtPayload } from "../../types/auth.types";
 
 import "./LoginPage.css";
-import { useAuthStore } from "./AuthStore.ts";
+import { normalizeRole, useAuthStore } from "./AuthStore.ts";
 
 const rolePriority = ["ADMIN", "DIRECTOR", "MANAGER", "EMPLOYEE"] as const;
 
@@ -26,7 +26,7 @@ function resolveRole(
   }
 
   const normalizedRoles = roleValues.map((roleName) =>
-    roleName.trim().toUpperCase().replace(/^ROLE_/, "")
+    normalizeRole(roleName.trim())
   );
 
   return rolePriority.find((role) => normalizedRoles.includes(role)) ?? null;
@@ -39,6 +39,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [busy,setBusy]=useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -46,6 +47,7 @@ function LoginPage() {
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+    if(busy)return;
     setSubmitted(true);
 
     if (!email || !password) {
@@ -53,6 +55,7 @@ function LoginPage() {
       return;
     }
 
+    setBusy(true);
     try {
       setError("");
       useAuthStore.getState().logout();
@@ -68,8 +71,11 @@ function LoginPage() {
           throw new Error("Le token ne contient pas d'identifiant utilisateur.");
         }
 
-        localStorage.setItem("accessToken", response.accessToken);
-        const user = await getUserById(payload.userId);
+
+        let user;
+        try {user=await getUserByAuthUserId(payload.userId,response.accessToken);}
+        catch(error){if(typeof error!=="object"||error===null||!("response" in error)||(error.response as {status?:number}).status!==404)throw error;user=await getUserById(payload.userId,response.accessToken);}
+
 
         const role = resolveRole(
           user.roleNames,
@@ -109,7 +115,7 @@ function LoginPage() {
           (error instanceof Error ? error.message : undefined) ||
           "Une erreur est survenue. Veuillez réessayer."
       );
-    }
+    } finally {setBusy(false);}
   };
 
   return (
@@ -191,7 +197,8 @@ function LoginPage() {
           </div>
 
           <Button
-            text="Se connecter"
+            text={busy?"Connexion…":"Se connecter"}
+            disabled={busy}
             type="submit"
           />
         </form>

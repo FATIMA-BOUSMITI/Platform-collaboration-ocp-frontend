@@ -1,0 +1,8 @@
+.role-dashboard{display:grid;gap:24px;color:#284235;font-family:Inter,"Segoe UI",sans-serif}
+.role-dashboard-account{color:#687e70;font-size:14px}.role-dashboard-account strong{color:#284235;font-weight:500}
+.role-dashboard-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.role-dashboard-card{display:block;background:white;border:1px solid #d6e3db;border-radius:12px;padding:24px;color:#284235;box-shadow:0 1px 3px #1c3e2810}
+.role-dashboard-card:hover{border-color:#087443;box-shadow:0 4px 12px #1c3e2814}
+.role-dashboard-card:focus-visible{outline:3px solid #d0aa38;outline-offset:3px}
+.role-dashboard-card>svg{font-size:24px;color:#087443;margin-bottom:16px}.role-dashboard-card h2{font-size:18px;font-weight:500;margin-bottom:8px}.role-dashboard-card p{color:#71857a;font-size:14px;line-height:1.5}
+@media(max-width:600px){.role-dashboard-actions{grid-template-columns:1fr}}

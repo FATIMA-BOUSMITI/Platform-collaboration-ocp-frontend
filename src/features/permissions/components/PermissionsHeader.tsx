@@ -4,8 +4,9 @@ import "../styles/PermissionsHeader.css";
 
  interface Props{
     onSave?:()=>void ;
+    saving?: boolean;
  }
-export default function PermissionsHeader( props:Props) { 
+export default function PermissionsHeader( props:Props) {
 
     return(
     <div className="permissions-header"> 
@@ -13,9 +14,10 @@ export default function PermissionsHeader( props:Props) {
            <button
         className="save-permissions-btn"
         onClick={props.onSave}
-      >
-        <FiSave size={20} />
-        <span>Enregistrer les modifications</span>
+             disabled={props.saving}
+           >
+             <FiSave size={20} />
+             <span>{props.saving ? "Enregistrement..." : "Enregistrer les modifications"}</span>
       </button>
      </div>);
 }

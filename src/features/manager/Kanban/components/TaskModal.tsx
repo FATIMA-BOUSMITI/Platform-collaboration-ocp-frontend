@@ -4,7 +4,7 @@ import type {
     KanbanTask,
     TaskPriority,
     TaskStatus
-} from "../types/kanban.types";
+} from "../types/Kanban.Types";
 
 import "../styles/TaskModal.css";
 
@@ -164,6 +164,7 @@ export default function TaskModal({
 
         <div
             className="modal-overlay"
+            data-testid="task-modal-overlay"
 
             onMouseDown={onClose}
         >
@@ -171,6 +172,7 @@ export default function TaskModal({
             <div
 
                 className="task-modal"
+                data-testid="task-modal"
 
                 onMouseDown={e =>
                     e.stopPropagation()

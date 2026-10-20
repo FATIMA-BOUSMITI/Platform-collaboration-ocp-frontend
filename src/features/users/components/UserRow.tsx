@@ -50,6 +50,7 @@ export default function UserRow({
   };
 
   const handleDelete = () => {
+    if(!window.confirm("Supprimer cet utilisateur ? Cette action est définitive."))return;
     setOpenMenu(null);
 
     if (onDeleteUser) {
@@ -68,7 +69,7 @@ export default function UserRow({
   const roleDisplay = normalizedRoles.length > 0 ? normalizedRoles.join(", ") : "Aucun rôle";
 
   return (
-    <tr>
+    <tr data-testid="user-row">
       {/* Utilisateur */}
       <td>
         <div className="user-cell">
@@ -76,15 +77,21 @@ export default function UserRow({
             {initials}
           </div>
 
-          <div>
-            <h4>{fullName}</h4>
-            <p>{user.email}</p>
+          <div className="user-details">
+            <h4 title={fullName}>{fullName}</h4>
+            <p title={user.email}>{user.email}</p>
           </div>
         </div>
       </td>
 
       {/* Email */}
-      <td>{user.email}</td>
+      <td
+        className="email-cell"
+        title={user.email}
+        data-testid="user-email"
+      >
+        {user.email}
+      </td>
 
       {/* Département */}
       <td>
@@ -100,8 +107,8 @@ export default function UserRow({
 
       {/* Statut */}
       <td>
-        <span className="status active">
-          Actif
+        <span className={"status " + (user.enabled && !user.accountLocked ? "active" : "inactive")}>
+          {user.accountLocked ? "Verrouillé" : user.enabled === true ? "Actif" : user.enabled === false ? "Désactivé" : "Indisponible"}
         </span>
       </td>
 
@@ -110,12 +117,12 @@ export default function UserRow({
         <div
           className="action-menu"
           ref={menuRef}
-          onMouseLeave={() => setOpenMenu(null)}
         >
 
           <button
             type="button"
             className="more-button"
+            data-testid="user-row-actions"
             onClick={() =>
               setOpenMenu(
                 openMenu === user.id
@@ -132,6 +139,7 @@ export default function UserRow({
 
               <button
                 type="button"
+                data-testid="edit-user-action"
                 onClick={handleEdit}
               >
                 <FiEdit2 size={16} />
@@ -141,6 +149,7 @@ export default function UserRow({
               <button
                 type="button"
                 className="delete-action"
+                data-testid="delete-user-action"
                 onClick={handleDelete}
               >
                 <FiTrash2 size={16} />

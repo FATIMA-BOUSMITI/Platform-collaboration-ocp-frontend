@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate } from "react-router-dom";
 
 import LoginPage from "../features/auth/LoginPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
-import AdminDashboardPage from "../features/dashboard/AdminDashboardPage";
+import { Dashboard as AdminDashboardPage, TeamsPage, ProfilePage, SessionsPage, SettingsPage, NotificationsPage, ActivityPage } from "../features/admin/AdminPages";
 import AdminLayout from "../layouts/AdminLayout";
 import DirectorLayout from "../layouts/DirectorLayout";
 import DirectorDashboardPage from "../features/director/pages/DirectorDashboardPage";
@@ -16,8 +16,8 @@ import RolesPage from "../features/roles/Pages/RolesPage";
 import PermissionsPage from "../features/permissions/pages/PermissionsPage";
 import UsersPage from "../features/users/UsersPage";
 import DepartmentsPage from "../features/departments/DepartmentsPage";
-import TeamsPage from "../features/teams/TeamsPage";
-import ProfilePage from "../features/profile/ProfilePage";
+
+
 import ManagerKanbanPage from "../features/manager/Kanban/pages/KanbanPage";
 import CommunicationPage from "../features/communication/pages/CommunicationPage";
 import DocumentsPage from "../features/documents/pages/DocumentsPage";
@@ -27,10 +27,8 @@ import ProjectsLayout from "../layouts/ProjectsLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
 
-function AppRouter() {
-  return (
-    <BrowserRouter>
-      <Routes>
+const router=createBrowserRouter(createRoutesFromElements(
+      <>
         <Route path="/" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -45,6 +43,10 @@ function AppRouter() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/roles" element={<RolesPage />} />
               <Route path="/permissions" element={<PermissionsPage />} />
+              <Route path="/sessions" element={<SessionsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/activity" element={<ActivityPage />} />
             </Route>
           </Route>
 
@@ -80,9 +82,8 @@ function AppRouter() {
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+      </>
+));
+function AppRouter(){return <RouterProvider router={router}/>;}
 
 export default AppRouter;

@@ -19,6 +19,15 @@ export default function UsersTable({
 
       <table>
 
+        <colgroup>
+          <col className="user-column" />
+          <col className="email-column" />
+          <col className="department-column" />
+          <col className="role-column" />
+          <col className="status-column" />
+          <col className="actions-column" />
+        </colgroup>
+
         <thead>
           <tr>
             <th>Utilisateur</th>
@@ -44,6 +53,12 @@ export default function UsersTable({
               }
             />
           ))}
+
+          {users.length === 0 && (
+            <tr data-testid="users-empty-state">
+              <td colSpan={6}>Aucun utilisateur à afficher.</td>
+            </tr>
+          )}
 
         </tbody>
 

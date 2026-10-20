@@ -48,7 +48,7 @@ export default function PermissionsMatrix({
 
                          {roles.map(role => (
 
-                              <th key={role.id}>
+                              <th key={role.id} data-role-id={role.id}>
                                   {role.name}
                                   </th>
 

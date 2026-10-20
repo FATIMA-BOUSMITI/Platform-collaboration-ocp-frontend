@@ -24,7 +24,7 @@ export default function RoleRow({
 
     return(
 
-        <tr>
+        <tr data-testid="role-user-row" data-user-id={user.id}>
             <td>
                 <div className="user-cell">
 
@@ -42,7 +42,7 @@ export default function RoleRow({
 
                         </h4>
 
-                        <p>
+                        <p data-testid="role-user-email">
 
                             {user.email}
 
