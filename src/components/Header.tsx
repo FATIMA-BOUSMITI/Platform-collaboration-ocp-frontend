@@ -1,3 +1,5 @@
+import NotificationBell from "../features/notifications/NotificationBell";
+import "../features/notifications/Notifications.css";
 import { FiMenu } from "react-icons/fi";
 import { useAuthStore, getCurrentUserDisplayInfo } from "../features/auth/AuthStore";
 import "./styles/Header.css";
@@ -28,7 +30,7 @@ function Header({ onToggleSidebar }: HeaderProps) {
         />
       </div>
 
-      <div className="header-right">
+      <div className="header-right"><NotificationBell/>
         <div className="header-user" title={displayName}>
           <div className="header-avatar">{initials}</div>
           <span>{displayName}</span>

@@ -1,9 +1,10 @@
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate } from "react-router-dom";
 
+import NotificationsPage from "../features/notifications/NotificationsPage";
 import LoginPage from "../features/auth/LoginPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
-import { Dashboard as AdminDashboardPage, TeamsPage, ProfilePage, SessionsPage, SettingsPage, NotificationsPage, ActivityPage } from "../features/admin/AdminPages";
+import { Dashboard as AdminDashboardPage, TeamsPage, ProfilePage, SessionsPage, SettingsPage, ActivityPage } from "../features/admin/AdminPages";
 import AdminLayout from "../layouts/AdminLayout";
 import DirectorLayout from "../layouts/DirectorLayout";
 import DirectorDashboardPage from "../features/director/pages/DirectorDashboardPage";
@@ -45,7 +46,7 @@ const router=createBrowserRouter(createRoutesFromElements(
               <Route path="/permissions" element={<PermissionsPage />} />
               <Route path="/sessions" element={<SessionsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
+
               <Route path="/activity" element={<ActivityPage />} />
             </Route>
           </Route>
@@ -77,6 +78,7 @@ const router=createBrowserRouter(createRoutesFromElements(
             <Route path="/documents" element={<DocumentsPage />} />
           </Route>
           <Route element={<CommunicationLayout />}>
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/messages" element={<CommunicationPage />} />
           </Route>
         </Route>
